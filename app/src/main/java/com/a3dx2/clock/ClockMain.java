@@ -1,16 +1,28 @@
 package com.a3dx2.clock;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
+
+import com.a3dx2.clock.weather.model.FiveDayResult;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -93,6 +105,11 @@ public class ClockMain extends AppCompatActivity {
         }
     };
 
+    private final int PERMMISSIONS_REQUEST_ID = 9302;
+    private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
+
+    private ClockMain mThis = this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,6 +133,61 @@ public class ClockMain extends AppCompatActivity {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_REQUEST_ID);
+        } else {
+            getWeather();
+        }
+    }
+
+    private void getWeather() {
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+//        String url = String.format(GEOPOSITION_SEARCH_CURRENT, latitude, longitude);
+//        LOGGER.log(Level.ALL, "url: " + url);
+//        WebServiceCaller loadData = new WebServiceCaller<CurrentLocationResult>(url, CurrentLocationResult.class, new WebServiceResultHandler<CurrentLocationResult>() {
+//            @Override
+//            public void handleResult(CurrentLocationResult result) {
+//                if (result != null) {
+//                    Toast.makeText(mThis, result.toString(), Toast.LENGTH_LONG);
+//                    LOGGER.log(Level.ALL, result.toString());
+//                }
+//            }
+//        });
+//        Void[] theVoid = null;
+//        loadData.execute(theVoid);
+
+        String url = String.format(GEOPOSITION_SEARCH_5DAY, latitude, longitude);
+        LOGGER.log(Level.ALL, "url: " + url);
+        WebServiceCaller loadData = new WebServiceCaller<FiveDayResult>(url, FiveDayResult.class, new WebServiceResultHandler<FiveDayResult>() {
+            @Override
+            public void handleResult(FiveDayResult result) {
+                if (result != null) {
+                    LOGGER.log(Level.ALL, result.toString());
+                }
+            }
+        });
+        Void[] theVoid = null;
+        loadData.execute(theVoid);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMMISSIONS_REQUEST_ID: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getWeather();
+                }
+                return;
+            }
+        }
     }
 
     @Override
@@ -162,7 +234,8 @@ public class ClockMain extends AppCompatActivity {
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
-    private static final String GEOPOSITION_SEARCH = "api.openweathermap.org/data/2.5/weather?APPID=d8f5781f6a2392ab29b32af8dbe1b073&lat={lat}&lon={lon}";
+    private static final String GEOPOSITION_SEARCH_5DAY = "https://api.openweathermap.org/data/2.5/forecast?APPID=d8f5781f6a2392ab29b32af8dbe1b073&lat=%f&lon=%f";
+    private static final String GEOPOSITION_SEARCH_CURRENT = "https://api.openweathermap.org/data/2.5/weather?APPID=d8f5781f6a2392ab29b32af8dbe1b073&lat=%f&lon=%f";
 
     /**
      * Schedules a call to hide() in delay milliseconds, canceling any
@@ -187,10 +260,15 @@ public class ClockMain extends AppCompatActivity {
 
         @Override
         protected K doInBackground(Void... webServiceCalls) {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-            K result = restTemplate.getForObject(url, resultClass);
-            return result;
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                K result = restTemplate.getForObject(url, resultClass);
+                return result;
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                return null;
+            }
         }
 
         protected void onPostExecute(K result) {
