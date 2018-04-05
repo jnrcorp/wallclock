@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
@@ -14,12 +13,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
-import com.a3dx2.clock.weather.model.FiveDayResult;
-
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
+import com.a3dx2.clock.service.WebServiceCaller;
+import com.a3dx2.clock.service.WebServiceResultHandler;
+import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
+import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +27,9 @@ import java.util.logging.Logger;
  * status bar and navigation/system bar) with user interaction.
  */
 public class ClockMain extends AppCompatActivity {
+
+    private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
+
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -106,7 +107,6 @@ public class ClockMain extends AppCompatActivity {
     };
 
     private final int PERMMISSIONS_REQUEST_ID = 9302;
-    private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
     private ClockMain mThis = this;
 
@@ -147,34 +147,8 @@ public class ClockMain extends AppCompatActivity {
             return;
         }
         Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        double longitude = location.getLongitude();
-        double latitude = location.getLatitude();
-//        String url = String.format(GEOPOSITION_SEARCH_CURRENT, latitude, longitude);
-//        LOGGER.log(Level.ALL, "url: " + url);
-//        WebServiceCaller loadData = new WebServiceCaller<CurrentLocationResult>(url, CurrentLocationResult.class, new WebServiceResultHandler<CurrentLocationResult>() {
-//            @Override
-//            public void handleResult(CurrentLocationResult result) {
-//                if (result != null) {
-//                    Toast.makeText(mThis, result.toString(), Toast.LENGTH_LONG);
-//                    LOGGER.log(Level.ALL, result.toString());
-//                }
-//            }
-//        });
-//        Void[] theVoid = null;
-//        loadData.execute(theVoid);
-
-        String url = String.format(GEOPOSITION_SEARCH_5DAY, latitude, longitude);
-        LOGGER.log(Level.ALL, "url: " + url);
-        WebServiceCaller loadData = new WebServiceCaller<FiveDayResult>(url, FiveDayResult.class, new WebServiceResultHandler<FiveDayResult>() {
-            @Override
-            public void handleResult(FiveDayResult result) {
-                if (result != null) {
-                    LOGGER.log(Level.ALL, result.toString());
-                }
-            }
-        });
-        Void[] theVoid = null;
-        loadData.execute(theVoid);
+        WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(location);
+        fiveDay.execute();
     }
 
     @Override
@@ -234,9 +208,6 @@ public class ClockMain extends AppCompatActivity {
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
-    private static final String GEOPOSITION_SEARCH_5DAY = "https://api.openweathermap.org/data/2.5/forecast?APPID=d8f5781f6a2392ab29b32af8dbe1b073&lat=%f&lon=%f";
-    private static final String GEOPOSITION_SEARCH_CURRENT = "https://api.openweathermap.org/data/2.5/weather?APPID=d8f5781f6a2392ab29b32af8dbe1b073&lat=%f&lon=%f";
-
     /**
      * Schedules a call to hide() in delay milliseconds, canceling any
      * previously scheduled calls.
@@ -244,43 +215,6 @@ public class ClockMain extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
-
-    private class WebServiceCaller<K> extends AsyncTask<Void, Void, K> {
-
-        private String url;
-        private Class<K> resultClass;
-        private WebServiceResultHandler<K> resultHandler;
-
-        public WebServiceCaller(String url, Class<K> theClass, WebServiceResultHandler<K> resultHandler) {
-            this.url = url;
-            this.resultClass = theClass;
-            this.resultHandler = resultHandler;
-        }
-
-        @Override
-        protected K doInBackground(Void... webServiceCalls) {
-            try {
-                RestTemplate restTemplate = new RestTemplate();
-                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                K result = restTemplate.getForObject(url, resultClass);
-                return result;
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-                return null;
-            }
-        }
-
-        protected void onPostExecute(K result) {
-            resultHandler.handleResult(result);
-        }
-
-    }
-
-    private interface WebServiceResultHandler<K> {
-
-        void handleResult(K result);
-
     }
 
 }

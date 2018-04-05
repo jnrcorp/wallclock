@@ -1,4 +1,4 @@
-package com.a3dx2.clock.weather.model;
+package com.a3dx2.clock.service.openweathermap.model;
 
 public class Cloud {
 

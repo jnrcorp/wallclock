@@ -1,4 +1,4 @@
-package com.a3dx2.clock.weather.model;
+package com.a3dx2.clock.service.openweathermap.model;
 
 import java.util.Date;
 
