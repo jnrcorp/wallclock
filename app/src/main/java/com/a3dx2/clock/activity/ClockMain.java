@@ -14,8 +14,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextClock;
 
 import com.a3dx2.clock.R;
@@ -144,6 +146,9 @@ public class ClockMain extends AppCompatActivity {
         String textColor = PreferenceManager.getDefaultSharedPreferences(mThis).getString(getString(R.string.pref_key_text_color), "#33b5e5");
         setBackgroundColor(backgroundColor);
         setTextColor(textColor);
+        setFontSizeTime();
+        setFontSizeDate();
+        setFontSizeWeather();
         weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
         weatherUpdateHandler.post(weatherUpdateRunnable);
     }
@@ -152,32 +157,52 @@ public class ClockMain extends AppCompatActivity {
         getWindow().getDecorView().findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(backgroundColor));
     }
 
+    public void setFontSizeWeather() {
+        String fontSizeTempPref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_temp), "20");
+        String fontSizeTimePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_weather_time), "20");
+        Integer fontSizeTemp = Integer.valueOf(fontSizeTempPref);
+        Integer fontSizeTime = Integer.valueOf(fontSizeTimePref);
+        LinearLayout weatherStatuses = (LinearLayout) findViewById(R.id.weather_status);
+        int childCount = weatherStatuses.getChildCount();
+        for (int i=0; i<childCount; i++) {
+            View child = weatherStatuses.getChildAt(i);
+            if (child instanceof WeatherDayView) {
+                WeatherDayView day = (WeatherDayView) child;
+                day.setFontSize(fontSizeTemp, fontSizeTime);
+            }
+        }
+    }
+
+    public void setFontSizeTime() {
+        String fontSizePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_time), "50");
+        Integer fontSize = Integer.valueOf(fontSizePref);
+        TextClock clockTime = (TextClock) findViewById(R.id.fullscreen_clock_time);
+        clockTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+    }
+
+    public void setFontSizeDate() {
+        String fontSizePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_date), "30");
+        Integer fontSize = Integer.valueOf(fontSizePref);
+        TextClock clockDate = (TextClock) findViewById(R.id.fullscreen_clock_date);
+        clockDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+    }
+
     public void setTextColor(String textColor) {
         Integer color = Color.parseColor(textColor);
         TextClock clockTime = (TextClock) findViewById(R.id.fullscreen_clock_time);
         TextClock clockDate = (TextClock) findViewById(R.id.fullscreen_clock_date);
-        WeatherDayView day1 = (WeatherDayView) findViewById(R.id.weather_day_1);
-        WeatherDayView day2 = (WeatherDayView) findViewById(R.id.weather_day_2);
-        WeatherDayView day3 = (WeatherDayView) findViewById(R.id.weather_day_3);
-        WeatherDayView day4 = (WeatherDayView) findViewById(R.id.weather_day_4);
-        WeatherDayView day5 = (WeatherDayView) findViewById(R.id.weather_day_5);
-        WeatherDayView day6 = (WeatherDayView) findViewById(R.id.weather_day_6);
-        WeatherDayView day7 = (WeatherDayView) findViewById(R.id.weather_day_7);
-        WeatherDayView day8 = (WeatherDayView) findViewById(R.id.weather_day_8);
-        WeatherDayView day9 = (WeatherDayView) findViewById(R.id.weather_day_9);
-        WeatherDayView day10 = (WeatherDayView) findViewById(R.id.weather_day_10);
         clockTime.setTextColor(color);
         clockDate.setTextColor(color);
-        day1.setTextColor(color);
-        day2.setTextColor(color);
-        day3.setTextColor(color);
-        day4.setTextColor(color);
-        day5.setTextColor(color);
-        day6.setTextColor(color);
-        day7.setTextColor(color);
-        day8.setTextColor(color);
-        day9.setTextColor(color);
-        day10.setTextColor(color);
+
+        LinearLayout weatherStatuses = (LinearLayout) findViewById(R.id.weather_status);
+        int childCount = weatherStatuses.getChildCount();
+        for (int i=0; i<childCount; i++) {
+            View child = weatherStatuses.getChildAt(i);
+            if (child instanceof WeatherDayView) {
+                WeatherDayView day = (WeatherDayView) child;
+                day.setTextColor(color);
+            }
+        }
     }
 
     @Override
@@ -202,6 +227,31 @@ public class ClockMain extends AppCompatActivity {
             Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(this, location, openWeatherApiKey);
             fiveDay.execute();
+        } else if (openWeatherApiKey.trim().isEmpty()) {
+            alertKeyMissing();
+            setKeyForDeveloper();
+        }
+    }
+
+    private void setKeyForDeveloper() {
+        String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
+        String apiKey = ""; // If you are a developer, you can put a key here, but do not commit it to the repo.
+        if (openWeatherApiKey.trim().isEmpty() && !apiKey.trim().isEmpty()) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).commit();
+            changeWeatherUpdateFrequency();
+        }
+    }
+
+    private void alertKeyMissing() {
+        LinearLayout weatherStatuses = (LinearLayout) findViewById(R.id.weather_status);
+        int childCount = weatherStatuses.getChildCount();
+        for (int i=0; i<childCount; i++) {
+            View child = weatherStatuses.getChildAt(i);
+            if (child instanceof WeatherDayView) {
+                WeatherDayView day = (WeatherDayView) child;
+                day.setWeatherDayOfWeek("No");
+                day.setWeatherTime("Key");
+            }
         }
     }
 

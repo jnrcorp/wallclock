@@ -15,11 +15,46 @@
     <string name="pref_key_text_color">TEXT_COLOR</string>
     <string name="pref_key_api_key">API_KEY</string>
     <string name="pref_key_update_frequency">UPDATE_FREQUENCY</string>
+    <string name="pref_key_font_size_time">FONT_SIZE_TIME</string>
+    <string name="pref_key_font_size_date">FONT_SIZE_DATE</string>
+    <string name="pref_key_font_size_temp">FONT_SIZE_WEATHER_TEMP</string>
+    <string name="pref_key_font_size_weather_time">FONT_SIZE_WEATHER_TIME</string>
 
     <string name="pref_background_color">Background Color</string>
     <string name="default_background_color">#000000</string>
     <string name="pref_text_color">Text Color</string>
     <string name="default_text_color">#33b5e5</string>
+    <string name="pref_font_size_time">Time Font Size (sp)</string>
+    <string name="default_font_size_time">50</string>
+    <string name="pref_font_size_date">Date Font Size (sp)</string>
+    <string name="default_font_size_date">30</string>
+    <string name="pref_font_size_temp">Temp Font Size (sp)</string>
+    <string name="default_font_size_temp">20</string>
+    <string name="pref_font_size_weather_time">Weather Time Font Size (sp)</string>
+    <string name="default_font_size_weather_time">20</string>
+
+    <string-array name="pref_font_size_values">
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+        <item>60</item>
+        <item>70</item>
+        <item>80</item>
+        <item>90</item>
+        <item>100</item>
+        <item>110</item>
+        <item>120</item>
+        <item>130</item>
+        <item>140</item>
+        <item>150</item>
+        <item>160</item>
+        <item>170</item>
+        <item>180</item>
+        <item>190</item>
+        <item>200</item>
+    </string-array>
 
     <string name="pref_openweathermap_api_key">Open WeatherMap API Key</string>
     <string name="pref_openweathermap_api_key_description">You need an API Key from https://openweathermap.org. Please sign up for one and put it here to get weather.</string>

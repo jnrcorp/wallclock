@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -49,6 +50,7 @@ public class WeatherDayView extends LinearLayout {
     }
 
     public void setWeatherIcon(Integer resourceId) {
+        Drawable icon = getContext().getDrawable(resourceId);
         weatherIcon.setImageResource(resourceId);
     }
 
@@ -68,6 +70,12 @@ public class WeatherDayView extends LinearLayout {
 
     public void setWeatherTime(String date) {
         weatherTime.setText(date);
+    }
+
+    public void setFontSize(Integer fontSizeTempSP, Integer fontSizeTimeSP) {
+        weatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTempSP);
+        weatherDay.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTimeSP);
+        weatherTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTimeSP);
     }
 
 }
