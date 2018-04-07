@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    tools:context=".ClockMain">
+    tools:context=".activity.ClockMain">
 
     <LinearLayout
         android:id="@+id/fullscreen_content"
@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:keepScreenOn="true"
-            android:textSize="70sp"
+            android:textSize="50sp"
             android:textColor="#33b5e5"
             android:textStyle="bold"
             android:format12Hour="h:mm a"/>
@@ -30,10 +30,44 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:keepScreenOn="true"
-            android:textSize="50sp"
+            android:textSize="30sp"
             android:textColor="#33b5e5"
             android:textStyle="bold"
             android:format12Hour="EEEE, MMMM dd"/>
+
+        <LinearLayout
+            android:id="@+id/weather_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <com.a3dx2.clock.view.WeatherDayView
+                android:id="@+id/weather_day_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.a3dx2.clock.view.WeatherDayView
+                android:id="@+id/weather_day_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.a3dx2.clock.view.WeatherDayView
+                android:id="@+id/weather_day_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.a3dx2.clock.view.WeatherDayView
+                android:id="@+id/weather_day_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.a3dx2.clock.view.WeatherDayView
+                android:id="@+id/weather_day_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -55,12 +89,12 @@
             tools:ignore="UselessParent">
 
             <Button
-                android:id="@+id/dummy_button"
+                android:id="@+id/settings_button"
                 style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/dummy_button" />
+                android:text="@string/settings_button" />
 
         </LinearLayout>
     </FrameLayout>

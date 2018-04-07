@@ -1,6 +1,37 @@
 <resources>
     <string name="app_name">Always On Wall Clock &amp; Weather</string>
 
-    <string name="dummy_button">Dummy Button</string>
+    <string name="settings_button">Settings</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_header_data_sync">Update Frequency</string>
+
+    <string name="pref_key_background_color">BACKGROUND_COLOR</string>
+    <string name="pref_key_text_color">TEXT_COLOR</string>
+    <string name="pref_key_api_key">API_KEY</string>
+    <string name="pref_key_update_frequency">UPDATE_FREQUENCY</string>
+
+    <string name="pref_background_color">Background Color</string>
+    <string name="default_background_color">#000000</string>
+    <string name="pref_text_color">Text Color</string>
+    <string name="default_text_color">#33b5e5</string>
+
+    <string name="pref_openweathermap_api_key">Open WeatherMap API Key</string>
+    <string name="pref_openweathermap_api_key_description">You need an API Key from https://openweathermap.org. Please sign up for one and put it here to get weather.</string>
+
+    <string name="pref_weather_update_frequency">Weather Update Frequency (minutes)</string>
+    <string name="loading">...</string>
+    <string-array name="pref_weather_update_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>180</item>
+    </string-array>
+
 </resources>

@@ -2,8 +2,6 @@ package com.a3dx2.clock.service;
 
 import android.os.AsyncTask;
 
-import com.a3dx2.clock.ClockMain;
-
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 

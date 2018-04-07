@@ -1,0 +1,33 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="@string/pref_key_api_key"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="@string/pref_openweathermap_api_key_description"
+        android:title="@string/pref_openweathermap_api_key" />
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:key="@string/pref_key_background_color"
+        android:capitalize="words"
+        android:defaultValue="@string/default_background_color"
+        android:inputType="textCapWords"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_background_color" />
+
+    <EditTextPreference
+        android:key="@string/pref_key_text_color"
+        android:capitalize="words"
+        android:defaultValue="@string/default_text_color"
+        android:inputType="textCapWords"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_text_color" />
+
+</PreferenceScreen>

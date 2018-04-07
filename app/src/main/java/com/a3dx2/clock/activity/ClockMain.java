@@ -1,10 +1,11 @@
-package com.a3dx2.clock;
+package com.a3dx2.clock.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -15,12 +16,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextClock;
 
-import com.a3dx2.clock.service.WebServiceCaller;
-import com.a3dx2.clock.service.WebServiceResultHandler;
+import com.a3dx2.clock.R;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
-import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
+import com.a3dx2.clock.view.WeatherDayView;
 
+import org.w3c.dom.Text;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,18 +36,6 @@ import java.util.logging.Logger;
 public class ClockMain extends AppCompatActivity {
 
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
-
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
     /**
      * Some older devices needs a small delay between UI widget updates
@@ -88,18 +81,18 @@ public class ClockMain extends AppCompatActivity {
         }
     };
 
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+    private final Handler weatherUpdateHandler = new Handler();
+    private final Runnable weatherUpdateRunnable = new Runnable() {
         @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
+        public void run() {
+        Integer updateFrequency = PreferenceManager.getDefaultSharedPreferences(mThis).getInt(getString(R.string.pref_key_update_frequency), 30);
+        try {
+            getWeather();
+        } catch (Exception ex) {
+            LOGGER.log(Level.ALL, ex.getMessage(), ex);
+        } finally {
+            weatherUpdateHandler.postDelayed(this, updateFrequency*1000);
+        }
         }
     };
 
@@ -117,7 +110,6 @@ public class ClockMain extends AppCompatActivity {
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
 
-
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,25 +121,76 @@ public class ClockMain extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-
-
+        findViewById(R.id.settings_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadSettings();
+            }
+        });
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_REQUEST_ID);
         } else {
-            getWeather();
+            weatherUpdateHandler.post(weatherUpdateRunnable);
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String backgroundColor = PreferenceManager.getDefaultSharedPreferences(mThis).getString(getString(R.string.pref_key_background_color), "#000000");
+        String textColor = PreferenceManager.getDefaultSharedPreferences(mThis).getString(getString(R.string.pref_key_text_color), "#33b5e5");
+        setBackgroundColor(backgroundColor);
+        setTextColor(textColor);
+        weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
+        weatherUpdateHandler.post(weatherUpdateRunnable);
+    }
+
+    public void setBackgroundColor(String backgroundColor) {
+        getWindow().getDecorView().findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(backgroundColor));
+    }
+
+    public void setTextColor(String textColor) {
+        Integer color = Color.parseColor(textColor);
+        TextClock clockTime = (TextClock) findViewById(R.id.fullscreen_clock_time);
+        TextClock clockDate = (TextClock) findViewById(R.id.fullscreen_clock_date);
+        WeatherDayView day1 = (WeatherDayView) findViewById(R.id.weather_day_1);
+        WeatherDayView day2 = (WeatherDayView) findViewById(R.id.weather_day_2);
+        WeatherDayView day3 = (WeatherDayView) findViewById(R.id.weather_day_3);
+        WeatherDayView day4 = (WeatherDayView) findViewById(R.id.weather_day_4);
+        WeatherDayView day5 = (WeatherDayView) findViewById(R.id.weather_day_5);
+        clockTime.setTextColor(color);
+        clockDate.setTextColor(color);
+        day1.setWeatherTemperatureColor(color);
+        day2.setWeatherTemperatureColor(color);
+        day3.setWeatherTemperatureColor(color);
+        day4.setWeatherTemperatureColor(color);
+        day5.setWeatherTemperatureColor(color);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
+    }
+
+    public void changeWeatherUpdateFrequency() {
+        weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
+        weatherUpdateHandler.post(weatherUpdateRunnable);
+    }
+
     private void getWeather() {
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
+        LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
+        if (!openWeatherApiKey.trim().isEmpty()) {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(this, location, openWeatherApiKey);
+            fiveDay.execute();
         }
-        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(location);
-        fiveDay.execute();
     }
 
     @Override
@@ -156,7 +199,7 @@ public class ClockMain extends AppCompatActivity {
             case PERMMISSIONS_REQUEST_ID: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getWeather();
+                    weatherUpdateHandler.post(weatherUpdateRunnable);
                 }
                 return;
             }
@@ -214,6 +257,11 @@ public class ClockMain extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    private void loadSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
 }
