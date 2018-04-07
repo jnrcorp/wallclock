@@ -8,7 +8,8 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SingleDayResult {
 
-    private Date dt;
+    private Long dt;
+    private String dt_txt;
     private Main main;
     private Weather[] weather;
     private Wind wind;
@@ -24,6 +25,7 @@ public class SingleDayResult {
     public String toString() {
         return "SingleDayResult{" +
                 "dt=" + dt +
+                ", dt_txt='" + dt_txt + '\'' +
                 ", main=" + main +
                 ", weather=" + Arrays.toString(weather) +
                 ", wind=" + wind +
@@ -33,12 +35,20 @@ public class SingleDayResult {
                 '}';
     }
 
-    public Date getDt() {
+    public Long getDt() {
         return dt;
     }
 
-    public void setDt(Date dt) {
+    public void setDt(Long dt) {
         this.dt = dt;
+    }
+
+    public String getDt_txt() {
+        return dt_txt;
+    }
+
+    public void setDt_txt(String dt_txt) {
+        this.dt_txt = dt_txt;
     }
 
     public Main getMain() {

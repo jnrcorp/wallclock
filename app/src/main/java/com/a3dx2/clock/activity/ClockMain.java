@@ -81,17 +81,19 @@ public class ClockMain extends AppCompatActivity {
         }
     };
 
+    private Date lastWeatherUpdate;
+
     private final Handler weatherUpdateHandler = new Handler();
     private final Runnable weatherUpdateRunnable = new Runnable() {
         @Override
         public void run() {
         Integer updateFrequency = PreferenceManager.getDefaultSharedPreferences(mThis).getInt(getString(R.string.pref_key_update_frequency), 30);
         try {
-            getWeather();
+            getWeather(updateFrequency);
         } catch (Exception ex) {
             LOGGER.log(Level.ALL, ex.getMessage(), ex);
         } finally {
-            weatherUpdateHandler.postDelayed(this, updateFrequency*1000);
+            weatherUpdateHandler.postDelayed(this, updateFrequency*60*1000);
         }
         }
     };
@@ -159,13 +161,23 @@ public class ClockMain extends AppCompatActivity {
         WeatherDayView day3 = (WeatherDayView) findViewById(R.id.weather_day_3);
         WeatherDayView day4 = (WeatherDayView) findViewById(R.id.weather_day_4);
         WeatherDayView day5 = (WeatherDayView) findViewById(R.id.weather_day_5);
+        WeatherDayView day6 = (WeatherDayView) findViewById(R.id.weather_day_6);
+        WeatherDayView day7 = (WeatherDayView) findViewById(R.id.weather_day_7);
+        WeatherDayView day8 = (WeatherDayView) findViewById(R.id.weather_day_8);
+        WeatherDayView day9 = (WeatherDayView) findViewById(R.id.weather_day_9);
+        WeatherDayView day10 = (WeatherDayView) findViewById(R.id.weather_day_10);
         clockTime.setTextColor(color);
         clockDate.setTextColor(color);
-        day1.setWeatherTemperatureColor(color);
-        day2.setWeatherTemperatureColor(color);
-        day3.setWeatherTemperatureColor(color);
-        day4.setWeatherTemperatureColor(color);
-        day5.setWeatherTemperatureColor(color);
+        day1.setTextColor(color);
+        day2.setTextColor(color);
+        day3.setTextColor(color);
+        day4.setTextColor(color);
+        day5.setTextColor(color);
+        day6.setTextColor(color);
+        day7.setTextColor(color);
+        day8.setTextColor(color);
+        day9.setTextColor(color);
+        day10.setTextColor(color);
     }
 
     @Override
@@ -179,10 +191,10 @@ public class ClockMain extends AppCompatActivity {
         weatherUpdateHandler.post(weatherUpdateRunnable);
     }
 
-    private void getWeather() {
+    private void getWeather(Integer updateFrequency) {
         String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
         LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
-        if (!openWeatherApiKey.trim().isEmpty()) {
+        if (!openWeatherApiKey.trim().isEmpty() && isWeatherUpdateDue(updateFrequency)) {
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
@@ -191,6 +203,24 @@ public class ClockMain extends AppCompatActivity {
             WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(this, location, openWeatherApiKey);
             fiveDay.execute();
         }
+    }
+
+    public void setLastWeatherUpdate() {
+        this.lastWeatherUpdate = new Date();
+    }
+
+    private boolean isWeatherUpdateDue(Integer updateFrequency) {
+        if (lastWeatherUpdate == null) {
+            return true;
+        }
+        Calendar nextUpdate = Calendar.getInstance();
+        nextUpdate.setTime(lastWeatherUpdate);
+        nextUpdate.add(Calendar.MINUTE, updateFrequency);
+        Date now = new Date();
+        if (now.compareTo(nextUpdate.getTime()) > 0) {
+            return true;
+        }
+        return false;
     }
 
     @Override

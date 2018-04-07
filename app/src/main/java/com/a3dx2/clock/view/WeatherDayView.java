@@ -20,6 +20,8 @@ public class WeatherDayView extends LinearLayout {
 
     private ImageView weatherIcon;
     private TextView weatherTemperature;
+    private TextView weatherDay;
+    private TextView weatherTime;
 
     public WeatherDayView(Context context) {
         super(context);
@@ -42,6 +44,8 @@ public class WeatherDayView extends LinearLayout {
         inflater.inflate(R.layout.weather_day_view, this, true);
         weatherIcon = (ImageView) findViewById(R.id.weather_image);
         weatherTemperature = (TextView) findViewById(R.id.weather_temp);
+        weatherDay = (TextView) findViewById(R.id.weather_day_of_week);
+        weatherTime = (TextView) findViewById(R.id.weather_time);
     }
 
     public void setWeatherIcon(Integer resourceId) {
@@ -52,7 +56,18 @@ public class WeatherDayView extends LinearLayout {
         weatherTemperature.setText(temperature.intValue() + "" + (char) 0x00B0);
     }
 
-    public void setWeatherTemperatureColor(int color) {
+    public void setTextColor(int color) {
         weatherTemperature.setTextColor(color);
+        weatherDay.setTextColor(color);
+        weatherTime.setTextColor(color);
     }
+
+    public void setWeatherDayOfWeek(String date) {
+        weatherDay.setText(date);
+    }
+
+    public void setWeatherTime(String date) {
+        weatherTime.setText(date);
+    }
+
 }
