@@ -1,5 +1,6 @@
 package com.a3dx2.clock.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -16,13 +17,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.weather.WeatherUtil;
 
 public class WeatherDayView extends LinearLayout {
 
+    private LinearLayout container;
     private ImageView weatherIcon;
     private TextView weatherTemperature;
     private TextView weatherDay;
-    private TextView weatherTime;
 
     public WeatherDayView(Context context) {
         super(context);
@@ -46,36 +48,34 @@ public class WeatherDayView extends LinearLayout {
         weatherIcon = (ImageView) findViewById(R.id.weather_image);
         weatherTemperature = (TextView) findViewById(R.id.weather_temp);
         weatherDay = (TextView) findViewById(R.id.weather_day_of_week);
-        weatherTime = (TextView) findViewById(R.id.weather_time);
+        container = (LinearLayout) findViewById(R.id.weather_container);
     }
 
     public void setWeatherIcon(Integer resourceId) {
-        Drawable icon = getContext().getDrawable(resourceId);
         weatherIcon.setImageResource(resourceId);
     }
 
+    public void resizeWeatherIcon(Double iconSizeMultiplier) {
+        WeatherUtil.resizeIcon(weatherIcon, iconSizeMultiplier);
+    }
+
     public void setWeatherTemperature(Double temperature) {
-        weatherTemperature.setText(temperature.intValue() + "" + (char) 0x00B0);
+        String temp = WeatherUtil.formatTemperature(temperature);
+        weatherTemperature.setText(temp);
     }
 
     public void setTextColor(int color) {
         weatherTemperature.setTextColor(color);
         weatherDay.setTextColor(color);
-        weatherTime.setTextColor(color);
     }
 
     public void setWeatherDayOfWeek(String date) {
         weatherDay.setText(date);
     }
 
-    public void setWeatherTime(String date) {
-        weatherTime.setText(date);
-    }
-
     public void setFontSize(Integer fontSizeTempSP, Integer fontSizeTimeSP) {
         weatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTempSP);
         weatherDay.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTimeSP);
-        weatherTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTimeSP);
     }
 
 }

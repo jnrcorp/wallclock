@@ -4,6 +4,7 @@ public class Wind {
 
     private Double speed;
     private Integer deg;
+    private Integer gust;
 
     public Wind() {
         super();
@@ -14,6 +15,7 @@ public class Wind {
         return "Wind{" +
                 "speed=" + speed +
                 ", deg=" + deg +
+                ", gust=" + gust +
                 '}';
     }
 
@@ -31,5 +33,13 @@ public class Wind {
 
     public void setDeg(Integer deg) {
         this.deg = deg;
+    }
+
+    public Integer getGust() {
+        return gust;
+    }
+
+    public void setGust(Integer gust) {
+        this.gust = gust;
     }
 }

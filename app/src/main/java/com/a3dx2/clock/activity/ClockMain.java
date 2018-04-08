@@ -15,16 +15,19 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextClock;
+import android.widget.TextView;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
+import com.a3dx2.clock.view.ScrollAuto;
 import com.a3dx2.clock.view.WeatherDayView;
-
-import org.w3c.dom.Text;
+import com.a3dx2.clock.weather.WeatherUtil;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -149,8 +152,37 @@ public class ClockMain extends AppCompatActivity {
         setFontSizeTime();
         setFontSizeDate();
         setFontSizeWeather();
+        sendScroll();
         weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
         weatherUpdateHandler.post(weatherUpdateRunnable);
+    }
+
+    private void sendScroll() {
+        final ScrollView scrollView = findViewById(R.id.weather_status_scroll);
+        final Handler handler = new Handler();
+        final ScrollAuto scrollAuto = new ScrollAuto();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                boolean flipped = false;
+                scrollView.scrollBy(0, scrollAuto.getIncrement());
+                View lastView = (View) scrollView.getChildAt(scrollView.getChildCount()-1);
+                int diff = (lastView.getBottom()-(scrollView.getHeight()+scrollView.getScrollY()));
+                if (!scrollAuto.isFlippedLastCall()) {
+                    if (diff == 0) {
+                        scrollAuto.flip();
+                        flipped = true;
+                    }
+                    if (scrollView.getScrollY() == 0) {
+                        scrollAuto.flip();
+                        flipped = true;
+                    }
+                } else {
+                    scrollAuto.nextCall();;
+                }
+                handler.postDelayed(this, flipped ? 3000 : 15);
+            }
+        });
     }
 
     public void setBackgroundColor(String backgroundColor) {
@@ -162,15 +194,22 @@ public class ClockMain extends AppCompatActivity {
         String fontSizeTimePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_weather_time), "20");
         Integer fontSizeTemp = Integer.valueOf(fontSizeTempPref);
         Integer fontSizeTime = Integer.valueOf(fontSizeTimePref);
-        LinearLayout weatherStatuses = (LinearLayout) findViewById(R.id.weather_status);
+        String iconSizePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_icon_size), "1");
+        Double iconSizeMultiplier = Double.valueOf(iconSizePref);
+        LinearLayout weatherStatuses = findViewById(R.id.weather_status);
         int childCount = weatherStatuses.getChildCount();
         for (int i=0; i<childCount; i++) {
             View child = weatherStatuses.getChildAt(i);
             if (child instanceof WeatherDayView) {
                 WeatherDayView day = (WeatherDayView) child;
                 day.setFontSize(fontSizeTemp, fontSizeTime);
+                day.resizeWeatherIcon(iconSizeMultiplier);
             }
         }
+        TextView textView = findViewById(R.id.current_weather_temp);
+        textView.setTextSize(fontSizeTemp);
+        ImageView currentTempIcon = findViewById(R.id.current_weather_image);
+        WeatherUtil.resizeIcon(currentTempIcon, iconSizeMultiplier);
     }
 
     public void setFontSizeTime() {
@@ -203,6 +242,8 @@ public class ClockMain extends AppCompatActivity {
                 day.setTextColor(color);
             }
         }
+        TextView textView = findViewById(R.id.current_weather_temp);
+        textView.setTextColor(color);
     }
 
     @Override
@@ -227,6 +268,8 @@ public class ClockMain extends AppCompatActivity {
             Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(this, location, openWeatherApiKey);
             fiveDay.execute();
+            WeatherSearchCurrent currentWeather = new WeatherSearchCurrent(this, location, openWeatherApiKey);
+            currentWeather.execute();
         } else if (openWeatherApiKey.trim().isEmpty()) {
             alertKeyMissing();
             setKeyForDeveloper();
@@ -249,8 +292,7 @@ public class ClockMain extends AppCompatActivity {
             View child = weatherStatuses.getChildAt(i);
             if (child instanceof WeatherDayView) {
                 WeatherDayView day = (WeatherDayView) child;
-                day.setWeatherDayOfWeek("No");
-                day.setWeatherTime("Key");
+                day.setWeatherDayOfWeek("No Key");
             }
         }
     }

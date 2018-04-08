@@ -66,4 +66,13 @@
         android:positiveButtonText="@null"
         android:title="@string/pref_font_size_weather_time" />
 
+    <ListPreference
+        android:defaultValue="@string/default_icon_size_weather"
+        android:entries="@array/pref_weather_icon_size_display"
+        android:entryValues="@array/pref_weather_icon_size_values"
+        android:key="@string/pref_key_icon_size"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_icon_size_weather" />
+
 </PreferenceScreen>

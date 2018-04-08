@@ -7,109 +7,143 @@
     tools:context=".activity.ClockMain">
 
     <LinearLayout
-        android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <TextClock
-            android:id="@+id/fullscreen_clock_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:keepScreenOn="true"
-            android:textSize="50sp"
-            android:textColor="#33b5e5"
-            android:textStyle="bold"
-            android:format12Hour="h:mm a"/>
-
-        <TextClock
-            android:id="@+id/fullscreen_clock_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:keepScreenOn="true"
-            android:textSize="30sp"
-            android:textColor="#33b5e5"
-            android:textStyle="bold"
-            android:format12Hour="EEEE, MMMM d"/>
-
-        <HorizontalScrollView
+        <ScrollView
+            android:id="@+id/weather_status_scroll"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="10sp"
             android:layout_gravity="center">
 
             <LinearLayout
                 android:id="@+id/weather_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left|center"
-                android:orientation="horizontal">
+                android:layout_gravity="top|center"
+                android:orientation="vertical">
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_9"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
                 <com.a3dx2.clock.view.WeatherDayView
                     android:id="@+id/weather_day_10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20sp" />
+                    android:paddingTop="20sp" />
 
             </LinearLayout>
 
-        </HorizontalScrollView>
+        </ScrollView>
+
+        <LinearLayout
+            android:id="@+id/fullscreen_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <TextClock
+                android:id="@+id/fullscreen_clock_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:keepScreenOn="true"
+                android:textSize="50sp"
+                android:textColor="#33b5e5"
+                android:textStyle="bold"
+                android:format12Hour="h:mm a"/>
+
+            <TextClock
+                android:id="@+id/fullscreen_clock_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:keepScreenOn="true"
+                android:textSize="30sp"
+                android:textColor="#33b5e5"
+                android:textStyle="bold"
+                android:format12Hour="EEEE, MMMM d"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/current_weather_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="#33b5e5"
+                    android:text="@string/loading"
+                    android:textSize="20sp"/>
+
+                <ImageView
+                    android:id="@+id/current_weather_image"
+                    android:src="@drawable/weather01d"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 

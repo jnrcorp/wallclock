@@ -19,6 +19,7 @@
     <string name="pref_key_font_size_date">FONT_SIZE_DATE</string>
     <string name="pref_key_font_size_temp">FONT_SIZE_WEATHER_TEMP</string>
     <string name="pref_key_font_size_weather_time">FONT_SIZE_WEATHER_TIME</string>
+    <string name="pref_key_icon_size">ICON_SIZE_WEATHER</string>
 
     <string name="pref_background_color">Background Color</string>
     <string name="default_background_color">#000000</string>
@@ -32,6 +33,8 @@
     <string name="default_font_size_temp">20</string>
     <string name="pref_font_size_weather_time">Weather Time Font Size (sp)</string>
     <string name="default_font_size_weather_time">20</string>
+    <string name="pref_icon_size_weather">Weather Icon Size</string>
+    <string name="default_icon_size_weather">2</string>
 
     <string-array name="pref_font_size_values">
         <item>10</item>
@@ -54,6 +57,30 @@
         <item>180</item>
         <item>190</item>
         <item>200</item>
+    </string-array>
+
+    <string-array name="pref_weather_icon_size_display">
+        <item>1.0x</item>
+        <item>1.5x</item>
+        <item>2.0x</item>
+        <item>2.5x</item>
+        <item>3.0x</item>
+        <item>3.5x</item>
+        <item>4.0x</item>
+        <item>4.5x</item>
+        <item>5.0x</item>
+    </string-array>
+
+    <string-array name="pref_weather_icon_size_values">
+        <item>1.0</item>
+        <item>1.5</item>
+        <item>2.0</item>
+        <item>2.5</item>
+        <item>3.0</item>
+        <item>3.5</item>
+        <item>4.0</item>
+        <item>4.5</item>
+        <item>5.0</item>
     </string-array>
 
     <string name="pref_openweathermap_api_key">Open WeatherMap API Key</string>
