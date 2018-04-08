@@ -75,4 +75,13 @@
         android:positiveButtonText="@null"
         android:title="@string/pref_icon_size_weather" />
 
+    <ListPreference
+        android:defaultValue="@string/default_time_interval_weather"
+        android:entries="@array/pref_weather_time_interval_display"
+        android:entryValues="@array/pref_weather_time_interval_values"
+        android:key="@string/pref_key_weather_time_interval"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_time_interval_weather" />
+
 </PreferenceScreen>

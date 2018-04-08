@@ -23,6 +23,7 @@ import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.service.ClockSettings;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
 import com.a3dx2.clock.view.ScrollAuto;
@@ -86,13 +87,14 @@ public class ClockMain extends AppCompatActivity {
         }
     };
 
+    private ClockSettings clockSettings;
     private Date lastWeatherUpdate;
 
     private final Handler weatherUpdateHandler = new Handler();
     private final Runnable weatherUpdateRunnable = new Runnable() {
         @Override
         public void run() {
-        Integer updateFrequency = PreferenceManager.getDefaultSharedPreferences(mThis).getInt(getString(R.string.pref_key_update_frequency), 30);
+        Integer updateFrequency = clockSettings.getUpdateFrequencyMinutes();
         try {
             getWeather(updateFrequency);
         } catch (Exception ex) {
@@ -112,6 +114,8 @@ public class ClockMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_clock_main);
+
+        clockSettings = new ClockSettings(this);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -145,13 +149,13 @@ public class ClockMain extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String backgroundColor = PreferenceManager.getDefaultSharedPreferences(mThis).getString(getString(R.string.pref_key_background_color), "#000000");
-        String textColor = PreferenceManager.getDefaultSharedPreferences(mThis).getString(getString(R.string.pref_key_text_color), "#33b5e5");
-        setBackgroundColor(backgroundColor);
-        setTextColor(textColor);
-        setFontSizeTime();
-        setFontSizeDate();
+        clockSettings = new ClockSettings(this);
+        setBackgroundColor();
+        setTextColor();
+        setFontSizeClockTime();
+        setFontSizeClockDate();
         setFontSizeWeather();
+        updateDisplayTimeInterval();
         sendScroll();
         weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
         weatherUpdateHandler.post(weatherUpdateRunnable);
@@ -166,7 +170,7 @@ public class ClockMain extends AppCompatActivity {
             public void run() {
                 boolean flipped = false;
                 scrollView.scrollBy(0, scrollAuto.getIncrement());
-                View lastView = (View) scrollView.getChildAt(scrollView.getChildCount()-1);
+                View lastView = scrollView.getChildAt(scrollView.getChildCount()-1);
                 int diff = (lastView.getBottom()-(scrollView.getHeight()+scrollView.getScrollY()));
                 if (!scrollAuto.isFlippedLastCall()) {
                     if (diff == 0) {
@@ -180,22 +184,36 @@ public class ClockMain extends AppCompatActivity {
                 } else {
                     scrollAuto.nextCall();;
                 }
-                handler.postDelayed(this, flipped ? 3000 : 15);
+                handler.postDelayed(this, flipped ? 3000 : 25);
             }
         });
     }
 
-    public void setBackgroundColor(String backgroundColor) {
+    public void setBackgroundColor() {
+        String backgroundColor = clockSettings.getBackgroundColor();
         getWindow().getDecorView().findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(backgroundColor));
     }
 
+    public void updateDisplayTimeInterval() {
+        Integer timeInterval = clockSettings.getWeatherTimeInterval();
+        LinearLayout weatherStatuses = findViewById(R.id.weather_status);
+        int childCount = weatherStatuses.getChildCount();
+        for (int i=0; i<childCount; i++) {
+            View child = weatherStatuses.getChildAt(i);
+            if (child instanceof WeatherDayView) {
+                if (i % timeInterval != 0) {
+                    child.setVisibility(View.GONE);
+                } else {
+                    child.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+    }
+
     public void setFontSizeWeather() {
-        String fontSizeTempPref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_temp), "20");
-        String fontSizeTimePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_weather_time), "20");
-        Integer fontSizeTemp = Integer.valueOf(fontSizeTempPref);
-        Integer fontSizeTime = Integer.valueOf(fontSizeTimePref);
-        String iconSizePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_icon_size), "1");
-        Double iconSizeMultiplier = Double.valueOf(iconSizePref);
+        Integer fontSizeTemp = clockSettings.getFontSizeWeatherTemp();
+        Integer fontSizeTime = clockSettings.getFontSizeWeatherTime();
+        Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
         LinearLayout weatherStatuses = findViewById(R.id.weather_status);
         int childCount = weatherStatuses.getChildCount();
         for (int i=0; i<childCount; i++) {
@@ -212,28 +230,27 @@ public class ClockMain extends AppCompatActivity {
         WeatherUtil.resizeIcon(currentTempIcon, iconSizeMultiplier);
     }
 
-    public void setFontSizeTime() {
-        String fontSizePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_time), "50");
-        Integer fontSize = Integer.valueOf(fontSizePref);
-        TextClock clockTime = (TextClock) findViewById(R.id.fullscreen_clock_time);
+    public void setFontSizeClockTime() {
+        Integer fontSize = clockSettings.getFontSizeClockTime();
+        TextClock clockTime = findViewById(R.id.fullscreen_clock_time);
         clockTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
     }
 
-    public void setFontSizeDate() {
-        String fontSizePref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_font_size_date), "30");
-        Integer fontSize = Integer.valueOf(fontSizePref);
-        TextClock clockDate = (TextClock) findViewById(R.id.fullscreen_clock_date);
+    public void setFontSizeClockDate() {
+        Integer fontSize = clockSettings.getFontSizeClockDate();
+        TextClock clockDate = findViewById(R.id.fullscreen_clock_date);
         clockDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
     }
 
-    public void setTextColor(String textColor) {
+    public void setTextColor() {
+        String textColor = clockSettings.getTextColor();
         Integer color = Color.parseColor(textColor);
-        TextClock clockTime = (TextClock) findViewById(R.id.fullscreen_clock_time);
-        TextClock clockDate = (TextClock) findViewById(R.id.fullscreen_clock_date);
+        TextClock clockTime = findViewById(R.id.fullscreen_clock_time);
+        TextClock clockDate = findViewById(R.id.fullscreen_clock_date);
         clockTime.setTextColor(color);
         clockDate.setTextColor(color);
 
-        LinearLayout weatherStatuses = (LinearLayout) findViewById(R.id.weather_status);
+        LinearLayout weatherStatuses = findViewById(R.id.weather_status);
         int childCount = weatherStatuses.getChildCount();
         for (int i=0; i<childCount; i++) {
             View child = weatherStatuses.getChildAt(i);
@@ -258,7 +275,7 @@ public class ClockMain extends AppCompatActivity {
     }
 
     private void getWeather(Integer updateFrequency) {
-        String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
+        String openWeatherApiKey = clockSettings.getOpenWeatherApiKey();
         LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
         if (!openWeatherApiKey.trim().isEmpty() && isWeatherUpdateDue(updateFrequency)) {
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -266,10 +283,12 @@ public class ClockMain extends AppCompatActivity {
                 return;
             }
             Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(this, location, openWeatherApiKey);
-            fiveDay.execute();
-            WeatherSearchCurrent currentWeather = new WeatherSearchCurrent(this, location, openWeatherApiKey);
-            currentWeather.execute();
+            if (location != null) {
+                WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(this, location, openWeatherApiKey);
+                fiveDay.execute();
+                WeatherSearchCurrent currentWeather = new WeatherSearchCurrent(this, location, openWeatherApiKey);
+                currentWeather.execute();
+            }
         } else if (openWeatherApiKey.trim().isEmpty()) {
             alertKeyMissing();
             setKeyForDeveloper();
@@ -280,7 +299,7 @@ public class ClockMain extends AppCompatActivity {
         String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
         String apiKey = ""; // If you are a developer, you can put a key here, but do not commit it to the repo.
         if (openWeatherApiKey.trim().isEmpty() && !apiKey.trim().isEmpty()) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).commit();
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).apply();
             changeWeatherUpdateFrequency();
         }
     }
@@ -309,10 +328,7 @@ public class ClockMain extends AppCompatActivity {
         nextUpdate.setTime(lastWeatherUpdate);
         nextUpdate.add(Calendar.MINUTE, updateFrequency);
         Date now = new Date();
-        if (now.compareTo(nextUpdate.getTime()) > 0) {
-            return true;
-        }
-        return false;
+        return now.compareTo(nextUpdate.getTime()) > 0;
     }
 
     @Override
@@ -323,7 +339,7 @@ public class ClockMain extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     weatherUpdateHandler.post(weatherUpdateRunnable);
                 }
-                return;
+                break;
             }
         }
     }

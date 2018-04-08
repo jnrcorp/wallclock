@@ -51,8 +51,8 @@ public class WeatherDayView extends LinearLayout {
         container = (LinearLayout) findViewById(R.id.weather_container);
     }
 
-    public void setWeatherIcon(Integer resourceId) {
-        weatherIcon.setImageResource(resourceId);
+    public void setWeatherIcon(Drawable drawable, Double iconSizeMultiplier) {
+        WeatherUtil.resizeIcon(weatherIcon, drawable, iconSizeMultiplier);
     }
 
     public void resizeWeatherIcon(Double iconSizeMultiplier) {

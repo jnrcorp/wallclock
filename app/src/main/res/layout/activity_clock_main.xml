@@ -30,60 +30,6 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="20sp" />
 
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_9"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
-                <com.a3dx2.clock.view.WeatherDayView
-                    android:id="@+id/weather_day_10"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="20sp" />
-
             </LinearLayout>
 
         </ScrollView>

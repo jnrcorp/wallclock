@@ -1,10 +1,16 @@
 package com.a3dx2.clock.service.openweathermap;
 
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
+import android.widget.LinearLayout;
 
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.activity.ClockMain;
+import com.a3dx2.clock.service.ClockSettings;
 import com.a3dx2.clock.service.WebServiceCaller;
 import com.a3dx2.clock.service.WebServiceResultHandler;
 import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
@@ -22,7 +28,7 @@ public class WeatherSearchFiveDay {
 
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
-    private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("EEE h a");
+    private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("EE h a");
     private static final String WEATHER_MAP_SEARCH_FIVE_DAY_URL = "https://api.openweathermap.org/data/2.5/forecast?APPID=%s&lat=%f&lon=%f&units=imperial";
 
     private ClockMain activity;
@@ -46,29 +52,41 @@ public class WeatherSearchFiveDay {
         @Override
         public void handleResult(FiveDayResult result) {
             if (result != null) {
-                String iconSizePref = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.pref_key_icon_size), "1");
-                Double iconSizeMultiplier = Double.valueOf(iconSizePref);
+                ClockSettings clockSettings = new ClockSettings(activity);
+                Integer timeInterval = Integer.valueOf(clockSettings.getWeatherTimeInterval());
+                Integer color = Color.parseColor(clockSettings.getTextColor());
+                Integer fontSizeTemp = clockSettings.getFontSizeWeatherTemp();
+                Integer fontSizeTime = clockSettings.getFontSizeWeatherTime();
+                LinearLayout weatherStatuses = activity.findViewById(R.id.weather_status);
+                weatherStatuses.removeAllViews();;
+                Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
                 activity.setLastWeatherUpdate();
                 int counter = 0;
-                int display_counter = 1;
                 LOGGER.log(Level.INFO, "weatherData=" + result.toString());
                 for (SingleDayResult singleDay : result.getList()) {
                     if (singleDay.getWeather().length == 0) {
                         continue;
                     }
                     Weather weather = singleDay.getWeather()[0];
-                    if (display_counter <= 10 && counter % 4 == 0) {
-                        String weatherIconId = "@drawable/weather" + weather.getIcon();
-                        String weatherDayId = "@id/weather_day_" + display_counter;
-                        Integer drawableId = activity.getResources().getIdentifier(weatherIconId, "drawable", activity.getPackageName());
-                        Integer weatherDayImageViewId = activity.getResources().getIdentifier(weatherDayId, "id", activity.getPackageName());
-                        WeatherDayView weatherDayView = activity.findViewById(weatherDayImageViewId);
-                        weatherDayView.setWeatherIcon(drawableId);
-                        weatherDayView.resizeWeatherIcon(iconSizeMultiplier);
-                        weatherDayView.setWeatherTemperature(singleDay.getMain().getTemp());
-                        Date forecastDate = new Date(singleDay.getDt()*1000);
-                        weatherDayView.setWeatherDayOfWeek(DAY_OF_WEEK_HOUR_FORMAT.format(forecastDate));
-                        display_counter += 1;
+                    String weatherIconId = "@drawable/weather" + weather.getIcon();
+                    Integer drawableId = activity.getResources().getIdentifier(weatherIconId, "drawable", activity.getPackageName());
+                    WeatherDayView weatherDayView = new WeatherDayView(activity);
+                    weatherDayView.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    Resources res = activity.getResources();
+                    float paddingTop = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
+                    weatherDayView.setPadding(0, (int) paddingTop, 0, 0);
+                    Drawable drawable = activity.getDrawable(drawableId);
+                    weatherDayView.setWeatherIcon(drawable, iconSizeMultiplier);
+                    weatherDayView.setWeatherTemperature(singleDay.getMain().getTemp());
+                    weatherDayView.setFontSize(fontSizeTemp, fontSizeTime);
+                    weatherDayView.setTextColor(color);
+                    Date forecastDate = new Date(singleDay.getDt()*1000);
+                    weatherDayView.setWeatherDayOfWeek(DAY_OF_WEEK_HOUR_FORMAT.format(forecastDate));
+                    weatherStatuses.addView(weatherDayView);
+                    if (counter % timeInterval != 0) {
+                        weatherDayView.setVisibility(WeatherDayView.GONE);
                     }
                     counter += 1;
                 }

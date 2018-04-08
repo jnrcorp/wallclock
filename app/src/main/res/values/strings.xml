@@ -20,6 +20,7 @@
     <string name="pref_key_font_size_temp">FONT_SIZE_WEATHER_TEMP</string>
     <string name="pref_key_font_size_weather_time">FONT_SIZE_WEATHER_TIME</string>
     <string name="pref_key_icon_size">ICON_SIZE_WEATHER</string>
+    <string name="pref_key_weather_time_interval">TIME_INTERVAL_WEATHER</string>
 
     <string name="pref_background_color">Background Color</string>
     <string name="default_background_color">#000000</string>
@@ -35,6 +36,8 @@
     <string name="default_font_size_weather_time">20</string>
     <string name="pref_icon_size_weather">Weather Icon Size</string>
     <string name="default_icon_size_weather">2</string>
+    <string name="pref_time_interval_weather">Weather Display Time Interval</string>
+    <string name="default_time_interval_weather">2</string>
 
     <string-array name="pref_font_size_values">
         <item>10</item>
@@ -81,6 +84,20 @@
         <item>4.0</item>
         <item>4.5</item>
         <item>5.0</item>
+    </string-array>
+
+    <string-array name="pref_weather_time_interval_display">
+        <item>Every 3 Hours</item>
+        <item>Every 6 Hours</item>
+        <item>Every 12 Hours</item>
+        <item>Every 24 Hours</item>
+    </string-array>
+
+    <string-array name="pref_weather_time_interval_values">
+        <item>1</item>
+        <item>2</item>
+        <item>4</item>
+        <item>8</item>
     </string-array>
 
     <string name="pref_openweathermap_api_key">Open WeatherMap API Key</string>
