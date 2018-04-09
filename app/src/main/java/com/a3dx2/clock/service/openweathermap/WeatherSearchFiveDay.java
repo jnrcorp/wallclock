@@ -32,7 +32,7 @@ public class WeatherSearchFiveDay {
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
     private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a");
-    private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("EE h a");
+    private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("E h a");
     private static final String WEATHER_MAP_SEARCH_FIVE_DAY_URL = "https://api.openweathermap.org/data/2.5/forecast?APPID=%s&lat=%f&lon=%f&units=imperial";
 
     private ClockMain activity;
@@ -77,9 +77,12 @@ public class WeatherSearchFiveDay {
                     String weatherIconId = "@drawable/weather" + weather.getIcon();
                     Integer drawableId = activity.getResources().getIdentifier(weatherIconId, "drawable", activity.getPackageName());
                     WeatherDayView weatherDayView = new WeatherDayView(activity);
-                    weatherDayView.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParams.gravity = Gravity.CENTER;
+                    weatherDayView.setLayoutParams(layoutParams);
+                    weatherDayView.setGravity(Gravity.CENTER);
                     weatherDayView.setPadding(0, paddingTop, 0, 0);
                     Drawable drawable = activity.getDrawable(drawableId);
                     weatherDayView.setWeatherIcon(drawable, iconSizeMultiplier);
@@ -95,9 +98,11 @@ public class WeatherSearchFiveDay {
                     counter += 1;
                 }
                 TextView lastUpdatedTime = new TextView(activity);
-                lastUpdatedTime.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.gravity = Gravity.CENTER;
+                lastUpdatedTime.setLayoutParams(layoutParams);
                 lastUpdatedTime.setGravity(Gravity.CENTER);
                 lastUpdatedTime.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
                 lastUpdatedTime.setPadding(0, paddingTop, 0, paddingTop);
