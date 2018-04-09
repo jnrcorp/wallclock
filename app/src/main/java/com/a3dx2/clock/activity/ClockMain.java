@@ -94,14 +94,14 @@ public class ClockMain extends AppCompatActivity {
     private final Runnable weatherUpdateRunnable = new Runnable() {
         @Override
         public void run() {
-        Integer updateFrequency = clockSettings.getUpdateFrequencyMinutes();
-        try {
-            getWeather(updateFrequency);
-        } catch (Exception ex) {
-            LOGGER.log(Level.ALL, ex.getMessage(), ex);
-        } finally {
-            weatherUpdateHandler.postDelayed(this, updateFrequency*60*1000);
-        }
+            Integer updateFrequency = clockSettings.getUpdateFrequencyMinutes();
+            try {
+                getWeather(updateFrequency);
+            } catch (Exception ex) {
+                LOGGER.log(Level.ALL, ex.getMessage(), ex);
+            } finally {
+                weatherUpdateHandler.postDelayed(this, updateFrequency*60*1000);
+            }
         }
     };
 
@@ -142,6 +142,7 @@ public class ClockMain extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_REQUEST_ID);
         } else {
+            weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
             weatherUpdateHandler.post(weatherUpdateRunnable);
         }
     }
@@ -323,7 +324,7 @@ public class ClockMain extends AppCompatActivity {
         }
         Calendar nextUpdate = Calendar.getInstance();
         nextUpdate.setTime(lastWeatherUpdate);
-        nextUpdate.add(Calendar.MINUTE, updateFrequency);
+        nextUpdate.add(Calendar.MINUTE, updateFrequency-5);
         Date now = new Date();
         return now.compareTo(nextUpdate.getTime()) > 0;
     }
@@ -334,6 +335,7 @@ public class ClockMain extends AppCompatActivity {
             case PERMMISSIONS_REQUEST_ID: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
                     weatherUpdateHandler.post(weatherUpdateRunnable);
                 }
                 break;
