@@ -168,23 +168,20 @@ public class ClockMain extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                boolean flipped = false;
                 scrollView.scrollBy(0, scrollAuto.getIncrement());
-                View lastView = scrollView.getChildAt(scrollView.getChildCount()-1);
-                int diff = (lastView.getBottom()-(scrollView.getHeight()+scrollView.getScrollY()));
+                View lastView = scrollView.getChildAt(scrollView.getChildCount() - 1);
+                int diff = lastView.getBottom() - (scrollView.getHeight() + scrollView.getScrollY());
                 if (!scrollAuto.isFlippedLastCall()) {
                     if (diff == 0) {
                         scrollAuto.flip();
-                        flipped = true;
                     }
                     if (scrollView.getScrollY() == 0) {
                         scrollAuto.flip();
-                        flipped = true;
                     }
                 } else {
                     scrollAuto.nextCall();;
                 }
-                handler.postDelayed(this, flipped ? 3000 : 25);
+                handler.postDelayed(this, scrollAuto.getHandlerDelay());
             }
         });
     }
