@@ -6,7 +6,10 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+import android.view.Gravity;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.activity.ClockMain;
@@ -28,6 +31,7 @@ public class WeatherSearchFiveDay {
 
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
+    private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a");
     private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("EE h a");
     private static final String WEATHER_MAP_SEARCH_FIVE_DAY_URL = "https://api.openweathermap.org/data/2.5/forecast?APPID=%s&lat=%f&lon=%f&units=imperial";
 
@@ -57,8 +61,10 @@ public class WeatherSearchFiveDay {
                 Integer color = Color.parseColor(clockSettings.getTextColor());
                 Integer fontSizeTemp = clockSettings.getFontSizeWeatherTemp();
                 Integer fontSizeTime = clockSettings.getFontSizeWeatherTime();
+                Resources res = activity.getResources();
+                int paddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
                 LinearLayout weatherStatuses = activity.findViewById(R.id.weather_status);
-                weatherStatuses.removeAllViews();;
+                weatherStatuses.removeAllViews();
                 Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
                 activity.setLastWeatherUpdate();
                 int counter = 0;
@@ -74,9 +80,7 @@ public class WeatherSearchFiveDay {
                     weatherDayView.setLayoutParams(new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
-                    Resources res = activity.getResources();
-                    float paddingTop = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
-                    weatherDayView.setPadding(0, (int) paddingTop, 0, 0);
+                    weatherDayView.setPadding(0, paddingTop, 0, 0);
                     Drawable drawable = activity.getDrawable(drawableId);
                     weatherDayView.setWeatherIcon(drawable, iconSizeMultiplier);
                     weatherDayView.setWeatherTemperature(singleDay.getMain().getTemp());
@@ -90,6 +94,17 @@ public class WeatherSearchFiveDay {
                     }
                     counter += 1;
                 }
+                TextView lastUpdatedTime = new TextView(activity);
+                lastUpdatedTime.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                lastUpdatedTime.setGravity(Gravity.CENTER);
+                lastUpdatedTime.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+                lastUpdatedTime.setPadding(0, paddingTop, 0, paddingTop);
+                lastUpdatedTime.setTextColor(color);
+                lastUpdatedTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTime);
+                lastUpdatedTime.setText("Updated\n" + HOUR_MINUTE_FORMAT.format(new Date()));
+                weatherStatuses.addView(lastUpdatedTime);
             }
         }
     }

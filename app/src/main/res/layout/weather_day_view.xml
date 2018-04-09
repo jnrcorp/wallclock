@@ -10,7 +10,7 @@
         <ImageView
             android:id="@+id/weather_image"
             android:src="@drawable/weather01d"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
@@ -19,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textAlignment="center"
             android:text="@string/loading"
             android:textSize="20sp"/>
 
@@ -27,6 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textAlignment="center"
             android:text="@string/loading"
             android:textSize="20sp"/>
 
