@@ -22,19 +22,19 @@ public class WeatherSearchCurrent {
 
     private static final String WEATHER_MAP_SEARCH_CURRENT_URL = "https://api.openweathermap.org/data/2.5/weather?APPID=%s&lat=%f&lon=%f&units=imperial";
 
-    private ClockMain activity;
+    private final ClockMain activity;
+    private final WeatherSearchCurrentResultHandler handler = new WeatherSearchCurrentResultHandler();
     private WebServiceCaller webServiceCaller;
-    private WeatherSearchCurrentResultHandler handler = new WeatherSearchCurrentResultHandler();
 
-    public WeatherSearchCurrent(ClockMain activity, Location location, String openWeatherMapApiKey) {
+    public WeatherSearchCurrent(ClockMain activity) {
         this.activity = activity;
+    }
+
+    public void execute(Location location, String openWeatherMapApiKey) {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
         String url = String.format(WEATHER_MAP_SEARCH_CURRENT_URL, openWeatherMapApiKey, latitude, longitude);
         this.webServiceCaller = new WebServiceCaller<CurrentLocationResult>(url, CurrentLocationResult.class, handler);
-    }
-
-    public void execute() {
         Void[] theVoid = null;
         webServiceCaller.execute(theVoid);
     }

@@ -36,24 +36,58 @@ public class WeatherSearchFiveDay {
 
     private final ClockMain activity;
     private final WeatherUpdateService weatherUpdateService;
-    private final WebServiceCaller webServiceCaller;
-    private final WeatherSearchFiveDayResultHandler handler = new WeatherSearchFiveDayResultHandler();
+    private final WeatherSearchFiveDayResultHandler handler;
+    private WebServiceCaller webServiceCaller;
 
-    public WeatherSearchFiveDay(ClockMain activity, WeatherUpdateService weatherUpdateService, Location location, String openWeatherMapApiKey) {
+    public WeatherSearchFiveDay(ClockMain activity, WeatherUpdateService weatherUpdateService) {
         this.activity = activity;
         this.weatherUpdateService = weatherUpdateService;
+        this.handler = new WeatherSearchFiveDayResultHandler(activity);
+    }
+
+    public void execute(Location location, String openWeatherMapApiKey) {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
         String url = String.format(Locale.US, WEATHER_MAP_SEARCH_FIVE_DAY_URL, openWeatherMapApiKey, latitude, longitude);
-        this.webServiceCaller = new WebServiceCaller<FiveDayResult>(url, FiveDayResult.class, handler);
-    }
-
-    public void execute() {
+        webServiceCaller = new WebServiceCaller<FiveDayResult>(url, FiveDayResult.class, handler);
         Void[] theVoid = null;
         webServiceCaller.execute(theVoid);
     }
 
+    public void updateLastUpdatedTimeUI(ClockSettings clockSettings) {
+        handler.updateLastUpdatedTimeUI(clockSettings);
+    }
+
     private class WeatherSearchFiveDayResultHandler implements WebServiceResultHandler<FiveDayResult> {
+
+        private final TextView lastUpdatedTime;
+
+        public WeatherSearchFiveDayResultHandler(ClockMain activity) {
+            this.lastUpdatedTime = new TextView(activity);
+            buildLastUpdatedTime();
+
+        }
+
+        private void buildLastUpdatedTime() {
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            layoutParams.gravity = Gravity.CENTER;
+            lastUpdatedTime.setLayoutParams(layoutParams);
+            lastUpdatedTime.setGravity(Gravity.CENTER);
+            lastUpdatedTime.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+        }
+
+        public void updateLastUpdatedTimeUI(ClockSettings clockSettings) {
+            Integer color = Color.parseColor(clockSettings.getTextColor());
+            Integer fontSizeTime = clockSettings.getFontSizeWeatherTime();
+            Resources res = activity.getResources();
+            int paddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
+            lastUpdatedTime.setPadding(0, paddingTop, 0, paddingTop);
+            lastUpdatedTime.setTextColor(color);
+            lastUpdatedTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTime);
+        }
+
         @Override
         public void handleResult(FiveDayResult result) {
             if (result != null) {
@@ -98,17 +132,7 @@ public class WeatherSearchFiveDay {
                     }
                     counter += 1;
                 }
-                TextView lastUpdatedTime = new TextView(activity);
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-                layoutParams.gravity = Gravity.CENTER;
-                lastUpdatedTime.setLayoutParams(layoutParams);
-                lastUpdatedTime.setGravity(Gravity.CENTER);
-                lastUpdatedTime.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                lastUpdatedTime.setPadding(0, paddingTop, 0, paddingTop);
-                lastUpdatedTime.setTextColor(color);
-                lastUpdatedTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTime);
+                updateLastUpdatedTimeUI(clockSettings);
                 lastUpdatedTime.setText("Updated\n" + HOUR_MINUTE_FORMAT.format(new Date()));
                 weatherStatuses.addView(lastUpdatedTime);
             }

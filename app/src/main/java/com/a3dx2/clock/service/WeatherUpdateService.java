@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 
 import com.a3dx2.clock.activity.ClockMain;
+import com.a3dx2.clock.service.model.ClockSettings;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
 
@@ -26,13 +27,16 @@ public class WeatherUpdateService {
     private final UpdateWeatherRunnable updateWeatherRunnable = new UpdateWeatherRunnable();
 
     private final ClockMain activity;
-    private final WeatherUpdateService mThis;
+
+    private final WeatherSearchFiveDay fiveDay;
+    private final WeatherSearchCurrent currentWeather;
 
     private Date lastWeatherUpdate;
 
     public WeatherUpdateService(ClockMain activity) {
         this.activity = activity;
-        this.mThis = this;
+        this.fiveDay = new WeatherSearchFiveDay(activity, this);
+        this.currentWeather = new WeatherSearchCurrent(activity);
     }
 
     public void startWeatherUpdate() {
@@ -46,6 +50,10 @@ public class WeatherUpdateService {
 
     public void setLastWeatherUpdate() {
         this.lastWeatherUpdate = new Date();
+    }
+
+    public void updateLastTimeUI(ClockSettings clockSettings) {
+        fiveDay.updateLastUpdatedTimeUI(clockSettings);
     }
 
     private class UpdateWeatherRunnable implements Runnable {
@@ -72,10 +80,10 @@ public class WeatherUpdateService {
                 }
                 Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (location != null) {
-                    WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(activity, mThis, location, openWeatherApiKey);
-                    fiveDay.execute();
-                    WeatherSearchCurrent currentWeather = new WeatherSearchCurrent(activity, location, openWeatherApiKey);
-                    currentWeather.execute();
+                    fiveDay.execute(location, openWeatherApiKey);
+                    currentWeather.execute(location, openWeatherApiKey);
+                } else {
+                    activity.processNoLocation();
                 }
             } else if (openWeatherApiKey.trim().isEmpty()) {
                 activity.processNoApiKey();

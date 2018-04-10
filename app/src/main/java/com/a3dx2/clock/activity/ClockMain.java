@@ -2,39 +2,27 @@ package com.a3dx2.clock.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.service.ClockUIService;
+import com.a3dx2.clock.service.CurrentWeatherUIService;
 import com.a3dx2.clock.service.ScrollingForecastService;
 import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
-import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
-import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
-import com.a3dx2.clock.view.ScrollAuto;
-import com.a3dx2.clock.view.WeatherDayView;
 import com.a3dx2.clock.weather.WeatherUtil;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -89,13 +77,14 @@ public class ClockMain extends AppCompatActivity {
         }
     };
 
-    private ClockSettings clockSettings;
-
     private final int PERMMISSIONS_REQUEST_ID = 9302;
 
     private ClockMain mThis = this;
+    private ClockSettings clockSettings;
+    private ClockUIService clockUIService;
     private ScrollingForecastService scrollingForecastService;
     private WeatherUpdateService weatherUpdateService;
+    private CurrentWeatherUIService currentWeatherUIService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +93,10 @@ public class ClockMain extends AppCompatActivity {
         setContentView(R.layout.activity_clock_main);
 
         clockSettings = new ClockSettings(this);
+        clockUIService = new ClockUIService(this);
         scrollingForecastService = new ScrollingForecastService(this);
         weatherUpdateService = new WeatherUpdateService(this);
+        currentWeatherUIService = new CurrentWeatherUIService(this);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -141,19 +132,22 @@ public class ClockMain extends AppCompatActivity {
         super.onResume();
         clockSettings = new ClockSettings(this);
         setBackgroundColor();
-        setTextColor();
-        setFontSizeClockTime();
-        setFontSizeClockDate();
-        setFontSizeWeather();
+        clockUIService.updateFont(clockSettings);
+        currentWeatherUIService.updateText(clockSettings);
         scrollingForecastService.updateDisplayTimeInterval(clockSettings);
         scrollingForecastService.updateUI(clockSettings);
         scrollingForecastService.activateScroll();
         weatherUpdateService.startWeatherUpdate();
+        weatherUpdateService.updateLastTimeUI(clockSettings);
     }
 
     public void processNoApiKey() {
         scrollingForecastService.alertKeyMissing();
         setKeyForDeveloper();
+    }
+
+    public void processNoLocation() {
+        scrollingForecastService.alertNoLocation();
     }
 
     public void setBackgroundColor() {
@@ -165,39 +159,6 @@ public class ClockMain extends AppCompatActivity {
         return clockSettings;
     }
 
-    public void setFontSizeWeather() {
-        Integer fontSizeTemp = clockSettings.getFontSizeWeatherTemp();
-        Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
-        TextView textView = findViewById(R.id.current_weather_temp);
-        textView.setTextSize(fontSizeTemp);
-        ImageView currentTempIcon = findViewById(R.id.current_weather_image);
-        WeatherUtil.resizeIcon(currentTempIcon, iconSizeMultiplier);
-    }
-
-    public void setFontSizeClockTime() {
-        Integer fontSize = clockSettings.getFontSizeClockTime();
-        TextClock clockTime = findViewById(R.id.fullscreen_clock_time);
-        clockTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
-    }
-
-    public void setFontSizeClockDate() {
-        Integer fontSize = clockSettings.getFontSizeClockDate();
-        TextClock clockDate = findViewById(R.id.fullscreen_clock_date);
-        clockDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
-    }
-
-    public void setTextColor() {
-        String textColor = clockSettings.getTextColor();
-        Integer color = Color.parseColor(textColor);
-        TextClock clockTime = findViewById(R.id.fullscreen_clock_time);
-        TextClock clockDate = findViewById(R.id.fullscreen_clock_date);
-        clockTime.setTextColor(color);
-        clockDate.setTextColor(color);
-
-        TextView textView = findViewById(R.id.current_weather_temp);
-        textView.setTextColor(color);
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -206,9 +167,10 @@ public class ClockMain extends AppCompatActivity {
 
     private void setKeyForDeveloper() {
         String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
-        String apiKey = ""; // If you are a developer, you can put a key here, but do not commit it to the repo.
+        String apiKey = "d8f5781f6a2392ab29b32af8dbe1b073"; // If you are a developer, you can put a key here, but do not commit it to the repo.
         if (openWeatherApiKey.trim().isEmpty() && !apiKey.trim().isEmpty()) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).apply();
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).commit();
+            clockSettings = new ClockSettings(this);
             weatherUpdateService.startWeatherUpdate();
         }
     }

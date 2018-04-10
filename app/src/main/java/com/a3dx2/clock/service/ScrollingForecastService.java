@@ -73,6 +73,18 @@ public class ScrollingForecastService {
         }
     }
 
+    public void alertNoLocation() {
+        LinearLayout weatherStatuses = scrollView.findViewById(R.id.weather_status);
+        int childCount = weatherStatuses.getChildCount();
+        for (int i=0; i<childCount; i++) {
+            View child = weatherStatuses.getChildAt(i);
+            if (child instanceof WeatherDayView) {
+                WeatherDayView day = (WeatherDayView) child;
+                day.setWeatherDayOfWeek("No Geo");
+            }
+        }
+    }
+
     public void updateDisplayTimeInterval(ClockSettings clockSettings) {
         Integer timeInterval = clockSettings.getWeatherTimeInterval();
         LinearLayout weatherStatuses = scrollView.findViewById(R.id.weather_status);
