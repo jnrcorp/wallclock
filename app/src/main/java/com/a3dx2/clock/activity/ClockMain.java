@@ -12,16 +12,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.service.ClockUIService;
 import com.a3dx2.clock.service.CurrentWeatherUIService;
-import com.a3dx2.clock.service.ScrollingForecastService;
+import com.a3dx2.clock.service.ScrollingForecastUIService;
 import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
-import com.a3dx2.clock.weather.WeatherUtil;
 
 import java.util.logging.Logger;
 
@@ -82,7 +79,7 @@ public class ClockMain extends AppCompatActivity {
     private ClockMain mThis = this;
     private ClockSettings clockSettings;
     private ClockUIService clockUIService;
-    private ScrollingForecastService scrollingForecastService;
+    private ScrollingForecastUIService scrollingForecastUIService;
     private WeatherUpdateService weatherUpdateService;
     private CurrentWeatherUIService currentWeatherUIService;
 
@@ -94,7 +91,7 @@ public class ClockMain extends AppCompatActivity {
 
         clockSettings = new ClockSettings(this);
         clockUIService = new ClockUIService(this);
-        scrollingForecastService = new ScrollingForecastService(this);
+        scrollingForecastUIService = new ScrollingForecastUIService(this);
         weatherUpdateService = new WeatherUpdateService(this);
         currentWeatherUIService = new CurrentWeatherUIService(this);
 
@@ -134,20 +131,20 @@ public class ClockMain extends AppCompatActivity {
         setBackgroundColor();
         clockUIService.updateFont(clockSettings);
         currentWeatherUIService.updateText(clockSettings);
-        scrollingForecastService.updateDisplayTimeInterval(clockSettings);
-        scrollingForecastService.updateUI(clockSettings);
-        scrollingForecastService.activateScroll();
+        scrollingForecastUIService.updateDisplayTimeInterval(clockSettings);
+        scrollingForecastUIService.updateUI(clockSettings);
+        scrollingForecastUIService.activateScroll();
         weatherUpdateService.startWeatherUpdate();
         weatherUpdateService.updateLastTimeUI(clockSettings);
     }
 
     public void processNoApiKey() {
-        scrollingForecastService.alertKeyMissing();
+        scrollingForecastUIService.alertKeyMissing();
         setKeyForDeveloper();
     }
 
     public void processNoLocation() {
-        scrollingForecastService.alertNoLocation();
+        scrollingForecastUIService.alertNoLocation();
     }
 
     public void setBackgroundColor() {

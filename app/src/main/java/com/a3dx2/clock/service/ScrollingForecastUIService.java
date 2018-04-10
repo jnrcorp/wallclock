@@ -14,7 +14,7 @@ import com.a3dx2.clock.view.WeatherDayView;
 
 import java.time.Clock;
 
-public class ScrollingForecastService {
+public class ScrollingForecastUIService {
 
     private final Handler handler = new Handler();
     private final ScrollingRunner scrollingRunner = new ScrollingRunner();
@@ -23,7 +23,7 @@ public class ScrollingForecastService {
     private final Activity activity;
     private final ScrollView scrollView;
 
-    public ScrollingForecastService(Activity activity) {
+    public ScrollingForecastUIService(Activity activity) {
         this.activity = activity;
         this.scrollView = activity.findViewById(R.id.weather_status_scroll);
     }
