@@ -23,7 +23,9 @@ import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
-import com.a3dx2.clock.service.ClockSettings;
+import com.a3dx2.clock.service.ScrollingForecastService;
+import com.a3dx2.clock.service.WeatherUpdateService;
+import com.a3dx2.clock.service.model.ClockSettings;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
 import com.a3dx2.clock.view.ScrollAuto;
@@ -88,26 +90,12 @@ public class ClockMain extends AppCompatActivity {
     };
 
     private ClockSettings clockSettings;
-    private Date lastWeatherUpdate;
-
-    private final Handler weatherUpdateHandler = new Handler();
-    private final Runnable weatherUpdateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Integer updateFrequency = clockSettings.getUpdateFrequencyMinutes();
-            try {
-                getWeather(updateFrequency);
-            } catch (Exception ex) {
-                LOGGER.log(Level.ALL, ex.getMessage(), ex);
-            } finally {
-                weatherUpdateHandler.postDelayed(this, updateFrequency*60*1000);
-            }
-        }
-    };
 
     private final int PERMMISSIONS_REQUEST_ID = 9302;
 
     private ClockMain mThis = this;
+    private ScrollingForecastService scrollingForecastService;
+    private WeatherUpdateService weatherUpdateService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +104,8 @@ public class ClockMain extends AppCompatActivity {
         setContentView(R.layout.activity_clock_main);
 
         clockSettings = new ClockSettings(this);
+        scrollingForecastService = new ScrollingForecastService(this);
+        weatherUpdateService = new WeatherUpdateService(this);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -142,8 +132,7 @@ public class ClockMain extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_REQUEST_ID);
         } else {
-            weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
-            weatherUpdateHandler.post(weatherUpdateRunnable);
+            weatherUpdateService.startWeatherUpdate();
         }
     }
 
@@ -156,35 +145,15 @@ public class ClockMain extends AppCompatActivity {
         setFontSizeClockTime();
         setFontSizeClockDate();
         setFontSizeWeather();
-        updateDisplayTimeInterval();
-        sendScroll();
-        weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
-        weatherUpdateHandler.post(weatherUpdateRunnable);
+        scrollingForecastService.updateDisplayTimeInterval(clockSettings);
+        scrollingForecastService.updateUI(clockSettings);
+        scrollingForecastService.activateScroll();
+        weatherUpdateService.startWeatherUpdate();
     }
 
-    private void sendScroll() {
-        final ScrollView scrollView = findViewById(R.id.weather_status_scroll);
-        final Handler handler = new Handler();
-        final ScrollAuto scrollAuto = new ScrollAuto();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                scrollView.scrollBy(0, scrollAuto.getIncrement());
-                View lastView = scrollView.getChildAt(scrollView.getChildCount() - 1);
-                int diff = lastView.getBottom() - (scrollView.getHeight() + scrollView.getScrollY());
-                if (!scrollAuto.isFlippedLastCall()) {
-                    if (diff == 0) {
-                        scrollAuto.flip();
-                    }
-                    if (scrollView.getScrollY() == 0) {
-                        scrollAuto.flip();
-                    }
-                } else {
-                    scrollAuto.nextCall();;
-                }
-                handler.postDelayed(this, scrollAuto.getHandlerDelay());
-            }
-        });
+    public void processNoApiKey() {
+        scrollingForecastService.alertKeyMissing();
+        setKeyForDeveloper();
     }
 
     public void setBackgroundColor() {
@@ -192,36 +161,13 @@ public class ClockMain extends AppCompatActivity {
         getWindow().getDecorView().findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(backgroundColor));
     }
 
-    public void updateDisplayTimeInterval() {
-        Integer timeInterval = clockSettings.getWeatherTimeInterval();
-        LinearLayout weatherStatuses = findViewById(R.id.weather_status);
-        int childCount = weatherStatuses.getChildCount();
-        for (int i=0; i<childCount; i++) {
-            View child = weatherStatuses.getChildAt(i);
-            if (child instanceof WeatherDayView) {
-                if (i % timeInterval != 0) {
-                    child.setVisibility(View.GONE);
-                } else {
-                    child.setVisibility(View.VISIBLE);
-                }
-            }
-        }
+    public ClockSettings getClockSettings() {
+        return clockSettings;
     }
 
     public void setFontSizeWeather() {
         Integer fontSizeTemp = clockSettings.getFontSizeWeatherTemp();
-        Integer fontSizeTime = clockSettings.getFontSizeWeatherTime();
         Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
-        LinearLayout weatherStatuses = findViewById(R.id.weather_status);
-        int childCount = weatherStatuses.getChildCount();
-        for (int i=0; i<childCount; i++) {
-            View child = weatherStatuses.getChildAt(i);
-            if (child instanceof WeatherDayView) {
-                WeatherDayView day = (WeatherDayView) child;
-                day.setFontSize(fontSizeTemp, fontSizeTime);
-                day.resizeWeatherIcon(iconSizeMultiplier);
-            }
-        }
         TextView textView = findViewById(R.id.current_weather_temp);
         textView.setTextSize(fontSizeTemp);
         ImageView currentTempIcon = findViewById(R.id.current_weather_image);
@@ -248,15 +194,6 @@ public class ClockMain extends AppCompatActivity {
         clockTime.setTextColor(color);
         clockDate.setTextColor(color);
 
-        LinearLayout weatherStatuses = findViewById(R.id.weather_status);
-        int childCount = weatherStatuses.getChildCount();
-        for (int i=0; i<childCount; i++) {
-            View child = weatherStatuses.getChildAt(i);
-            if (child instanceof WeatherDayView) {
-                WeatherDayView day = (WeatherDayView) child;
-                day.setTextColor(color);
-            }
-        }
         TextView textView = findViewById(R.id.current_weather_temp);
         textView.setTextColor(color);
     }
@@ -264,33 +201,7 @@ public class ClockMain extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
-    }
-
-    public void changeWeatherUpdateFrequency() {
-        weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
-        weatherUpdateHandler.post(weatherUpdateRunnable);
-    }
-
-    private void getWeather(Integer updateFrequency) {
-        String openWeatherApiKey = clockSettings.getOpenWeatherApiKey();
-        LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
-        if (!openWeatherApiKey.trim().isEmpty() && isWeatherUpdateDue(updateFrequency)) {
-            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-                WeatherSearchFiveDay fiveDay = new WeatherSearchFiveDay(this, location, openWeatherApiKey);
-                fiveDay.execute();
-                WeatherSearchCurrent currentWeather = new WeatherSearchCurrent(this, location, openWeatherApiKey);
-                currentWeather.execute();
-            }
-        } else if (openWeatherApiKey.trim().isEmpty()) {
-            alertKeyMissing();
-            setKeyForDeveloper();
-        }
+        weatherUpdateService.stopWeatherUpdate();
     }
 
     private void setKeyForDeveloper() {
@@ -298,35 +209,8 @@ public class ClockMain extends AppCompatActivity {
         String apiKey = ""; // If you are a developer, you can put a key here, but do not commit it to the repo.
         if (openWeatherApiKey.trim().isEmpty() && !apiKey.trim().isEmpty()) {
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).apply();
-            changeWeatherUpdateFrequency();
+            weatherUpdateService.startWeatherUpdate();
         }
-    }
-
-    private void alertKeyMissing() {
-        LinearLayout weatherStatuses = (LinearLayout) findViewById(R.id.weather_status);
-        int childCount = weatherStatuses.getChildCount();
-        for (int i=0; i<childCount; i++) {
-            View child = weatherStatuses.getChildAt(i);
-            if (child instanceof WeatherDayView) {
-                WeatherDayView day = (WeatherDayView) child;
-                day.setWeatherDayOfWeek("No Key");
-            }
-        }
-    }
-
-    public void setLastWeatherUpdate() {
-        this.lastWeatherUpdate = new Date();
-    }
-
-    private boolean isWeatherUpdateDue(Integer updateFrequency) {
-        if (lastWeatherUpdate == null) {
-            return true;
-        }
-        Calendar nextUpdate = Calendar.getInstance();
-        nextUpdate.setTime(lastWeatherUpdate);
-        nextUpdate.add(Calendar.MINUTE, updateFrequency-5);
-        Date now = new Date();
-        return now.compareTo(nextUpdate.getTime()) > 0;
     }
 
     @Override
@@ -335,8 +219,7 @@ public class ClockMain extends AppCompatActivity {
             case PERMMISSIONS_REQUEST_ID: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    weatherUpdateHandler.removeCallbacks(weatherUpdateRunnable);
-                    weatherUpdateHandler.post(weatherUpdateRunnable);
+                    weatherUpdateService.startWeatherUpdate();
                 }
                 break;
             }

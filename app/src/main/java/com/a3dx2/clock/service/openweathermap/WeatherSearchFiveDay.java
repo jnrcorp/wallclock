@@ -4,16 +4,15 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.activity.ClockMain;
-import com.a3dx2.clock.service.ClockSettings;
+import com.a3dx2.clock.service.WeatherUpdateService;
+import com.a3dx2.clock.service.model.ClockSettings;
 import com.a3dx2.clock.service.WebServiceCaller;
 import com.a3dx2.clock.service.WebServiceResultHandler;
 import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
@@ -35,12 +34,14 @@ public class WeatherSearchFiveDay {
     private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("E h a");
     private static final String WEATHER_MAP_SEARCH_FIVE_DAY_URL = "https://api.openweathermap.org/data/2.5/forecast?APPID=%s&lat=%f&lon=%f&units=imperial";
 
-    private ClockMain activity;
-    private WebServiceCaller webServiceCaller;
-    private WeatherSearchFiveDayResultHandler handler = new WeatherSearchFiveDayResultHandler();
+    private final ClockMain activity;
+    private final WeatherUpdateService weatherUpdateService;
+    private final WebServiceCaller webServiceCaller;
+    private final WeatherSearchFiveDayResultHandler handler = new WeatherSearchFiveDayResultHandler();
 
-    public WeatherSearchFiveDay(ClockMain activity, Location location, String openWeatherMapApiKey) {
+    public WeatherSearchFiveDay(ClockMain activity, WeatherUpdateService weatherUpdateService, Location location, String openWeatherMapApiKey) {
         this.activity = activity;
+        this.weatherUpdateService = weatherUpdateService;
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
         String url = String.format(Locale.US, WEATHER_MAP_SEARCH_FIVE_DAY_URL, openWeatherMapApiKey, latitude, longitude);
@@ -66,7 +67,7 @@ public class WeatherSearchFiveDay {
                 LinearLayout weatherStatuses = activity.findViewById(R.id.weather_status);
                 weatherStatuses.removeAllViews();
                 Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
-                activity.setLastWeatherUpdate();
+                weatherUpdateService.setLastWeatherUpdate();
                 int counter = 0;
                 LOGGER.log(Level.INFO, "weatherData=" + result.toString());
                 for (SingleDayResult singleDay : result.getList()) {

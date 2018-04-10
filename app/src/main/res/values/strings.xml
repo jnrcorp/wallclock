@@ -17,7 +17,7 @@
     <string name="pref_key_update_frequency">UPDATE_FREQUENCY</string>
     <string name="pref_key_font_size_time">FONT_SIZE_TIME</string>
     <string name="pref_key_font_size_date">FONT_SIZE_DATE</string>
-    <string name="pref_key_font_size_temp">FONT_SIZE_WEATHER_TEMP</string>
+    <string name="pref_key_font_size_weather_temp">FONT_SIZE_WEATHER_TEMP</string>
     <string name="pref_key_font_size_weather_time">FONT_SIZE_WEATHER_TIME</string>
     <string name="pref_key_icon_size">ICON_SIZE_WEATHER</string>
     <string name="pref_key_weather_time_interval">TIME_INTERVAL_WEATHER</string>
@@ -26,12 +26,12 @@
     <string name="default_background_color">#000000</string>
     <string name="pref_text_color">Text Color</string>
     <string name="default_text_color">#33b5e5</string>
-    <string name="pref_font_size_time">Time Font Size (sp)</string>
-    <string name="default_font_size_time">190</string>
-    <string name="pref_font_size_date">Date Font Size (sp)</string>
-    <string name="default_font_size_date">80</string>
-    <string name="pref_font_size_temp">Temp Font Size (sp)</string>
-    <string name="default_font_size_temp">80</string>
+    <string name="pref_font_size_clock_time">Time Font Size (sp)</string>
+    <string name="default_font_size_clock_time">190</string>
+    <string name="pref_font_size_clock_date">Date Font Size (sp)</string>
+    <string name="default_font_size_clock_date">80</string>
+    <string name="pref_font_size_weather_temp">Temp Font Size (sp)</string>
+    <string name="default_font_size_weather_temp">80</string>
     <string name="pref_font_size_weather_time">Weather Time Font Size (sp)</string>
     <string name="default_font_size_weather_time">50</string>
     <string name="pref_icon_size_weather">Weather Icon Size</string>

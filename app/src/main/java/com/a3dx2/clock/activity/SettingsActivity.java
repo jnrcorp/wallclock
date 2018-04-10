@@ -169,7 +169,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_text_color)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size_time)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size_date)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size_temp)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size_weather_temp)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size_weather_time)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_icon_size)));
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_weather_time_interval)));
