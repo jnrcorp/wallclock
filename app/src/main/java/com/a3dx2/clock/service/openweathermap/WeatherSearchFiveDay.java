@@ -60,12 +60,14 @@ public class WeatherSearchFiveDay {
 
     private class WeatherSearchFiveDayResultHandler implements WebServiceResultHandler<FiveDayResult> {
 
+        private final TextView forecast;
         private final TextView lastUpdatedTime;
 
         public WeatherSearchFiveDayResultHandler(ClockMain activity) {
             this.lastUpdatedTime = new TextView(activity);
+            this.forecast = new TextView(activity);
             buildLastUpdatedTime();
-
+            buildForecast();
         }
 
         private void buildLastUpdatedTime() {
@@ -78,6 +80,17 @@ public class WeatherSearchFiveDay {
             lastUpdatedTime.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
         }
 
+        private void buildForecast() {
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            layoutParams.gravity = Gravity.CENTER;
+            forecast.setLayoutParams(layoutParams);
+            forecast.setGravity(Gravity.CENTER);
+            forecast.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+            forecast.setText("5 Day\nForecast:");
+        }
+
         public void updateLastUpdatedTimeUI(ClockSettings clockSettings) {
             Integer color = Color.parseColor(clockSettings.getTextColor());
             Integer fontSizeTime = clockSettings.getFontSizeWeatherTime();
@@ -86,6 +99,9 @@ public class WeatherSearchFiveDay {
             lastUpdatedTime.setPadding(0, paddingTop, 0, paddingTop);
             lastUpdatedTime.setTextColor(color);
             lastUpdatedTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTime);
+            forecast.setPadding(0, paddingTop, 0, paddingTop);
+            forecast.setTextColor(color);
+            forecast.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTime);
         }
 
         @Override
@@ -101,6 +117,7 @@ public class WeatherSearchFiveDay {
                 int paddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
                 LinearLayout weatherStatuses = activity.findViewById(R.id.weather_status);
                 weatherStatuses.removeAllViews();
+                weatherStatuses.addView(forecast);
                 Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
                 weatherUpdateService.setLastWeatherUpdate();
                 int counter = 0;
