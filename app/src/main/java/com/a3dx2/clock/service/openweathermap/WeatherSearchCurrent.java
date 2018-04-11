@@ -43,6 +43,7 @@ public class WeatherSearchCurrent {
         @Override
         public void handleResult(CurrentLocationResult result) {
             if (result != null) {
+                activity.setWeatherCurrent(result);
                 LOGGER.log(Level.INFO, "currentConditions=" + result.toString());
                 Weather weather = result.getWeather()[0];
                 String weatherIconId = "@drawable/weather" + weather.getIcon();

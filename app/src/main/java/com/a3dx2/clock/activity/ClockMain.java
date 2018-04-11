@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +20,11 @@ import com.a3dx2.clock.service.CurrentWeatherUIService;
 import com.a3dx2.clock.service.ScrollingForecastUIService;
 import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
+import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
+import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
 
+import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -74,7 +79,37 @@ public class ClockMain extends AppCompatActivity {
         }
     };
 
-    private final int PERMMISSIONS_REQUEST_ID = 9302;
+    private final Handler brightnessHandler = new Handler();
+    private final Runnable updateBrightness = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                if (weatherCurrent != null) {
+                    int brightnessMode = Settings.System.getInt(mThis.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
+                    if (Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL == brightnessMode) {
+                        int brightnessLevel = isNight() ? 0 : 255;
+                        Settings.System.putInt(mThis.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
+                    }
+                }
+            } catch (Settings.SettingNotFoundException ex) {
+                LOGGER.log(Level.SEVERE, "Cannot find screen brightness mode");
+            } finally {
+                brightnessHandler.postDelayed(this, 60*1000);
+            }
+        }
+
+        private boolean isNight() {
+            Long sunsetTime = Long.valueOf(weatherCurrent.getSys().getSunset());
+            Long sunriseTime = Long.valueOf(weatherCurrent.getSys().getSunrise());
+            Date sunset = new Date(sunsetTime * 1000);
+            Date sunrise = new Date(sunriseTime * 1000);
+            return sunset.compareTo(sunrise) > 0;
+        }
+
+    };
+
+    private final int PERMMISSIONS_LOCATION_REQUEST_ID = 9302;
+    private final int PERMMISSIONS_WRITE_SETTINGS_REQUEST_ID = 9303;
 
     private ClockMain mThis = this;
     private ClockSettings clockSettings;
@@ -82,6 +117,25 @@ public class ClockMain extends AppCompatActivity {
     private ScrollingForecastUIService scrollingForecastUIService;
     private WeatherUpdateService weatherUpdateService;
     private CurrentWeatherUIService currentWeatherUIService;
+
+    private CurrentLocationResult weatherCurrent;
+    private FiveDayResult weatherForecast;
+
+    public CurrentLocationResult getWeatherCurrent() {
+        return weatherCurrent;
+    }
+
+    public void setWeatherCurrent(CurrentLocationResult weatherCurrent) {
+        this.weatherCurrent = weatherCurrent;
+    }
+
+    public FiveDayResult getWeatherForecast() {
+        return weatherForecast;
+    }
+
+    public void setWeatherForecast(FiveDayResult weatherForecast) {
+        this.weatherForecast = weatherForecast;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +152,12 @@ public class ClockMain extends AppCompatActivity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
+
+        if (ActivityCompat.checkSelfPermission(mThis, Manifest.permission.WRITE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(mThis, new String[]{Manifest.permission.WRITE_SETTINGS}, PERMMISSIONS_WRITE_SETTINGS_REQUEST_ID);
+        } else {
+            restartBrightnessChecker();
+        }
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +178,7 @@ public class ClockMain extends AppCompatActivity {
         });
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_REQUEST_ID);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_LOCATION_REQUEST_ID);
         } else {
             weatherUpdateService.startWeatherUpdate();
         }
@@ -136,6 +196,16 @@ public class ClockMain extends AppCompatActivity {
         scrollingForecastUIService.activateScroll();
         weatherUpdateService.startWeatherUpdate();
         weatherUpdateService.updateLastTimeUI(clockSettings);
+        restartBrightnessChecker();
+    }
+
+    public void restartBrightnessChecker() {
+        String manageBrightnessPref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_manage_brightness), "true");
+        boolean manageBrightness = Boolean.valueOf(manageBrightnessPref);
+        brightnessHandler.removeCallbacks(updateBrightness);
+        if (manageBrightness) {
+            brightnessHandler.post(updateBrightness);
+        }
     }
 
     public void processNoApiKey() {
@@ -175,10 +245,16 @@ public class ClockMain extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case PERMMISSIONS_REQUEST_ID: {
+            case PERMMISSIONS_LOCATION_REQUEST_ID: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     weatherUpdateService.startWeatherUpdate();
+                }
+                break;
+            }
+            case PERMMISSIONS_WRITE_SETTINGS_REQUEST_ID: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    restartBrightnessChecker();
                 }
                 break;
             }

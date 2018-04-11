@@ -2,11 +2,13 @@ package com.a3dx2.clock.service.openweathermap.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Arrays;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CurrentLocationResult {
 
+    private System sys;
     private Coordinates coord;
     private Weather[] weather;
     private Main main;
@@ -25,9 +27,10 @@ public class CurrentLocationResult {
 
     @Override
     public String toString() {
-        return "GeoPositionResult{" +
-                "coordinates=" + coord +
-                ", weather=" + weather +
+        return "CurrentLocationResult{" +
+                "sys=" + sys +
+                ", coord=" + coord +
+                ", weather=" + Arrays.toString(weather) +
                 ", main=" + main +
                 ", wind=" + wind +
                 ", cloud=" + cloud +
@@ -38,6 +41,14 @@ public class CurrentLocationResult {
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public System getSys() {
+        return sys;
+    }
+
+    public void setSys(System sys) {
+        this.sys = sys;
     }
 
     public Coordinates getCoord() {

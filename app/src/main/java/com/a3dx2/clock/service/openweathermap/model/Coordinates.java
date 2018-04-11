@@ -9,6 +9,14 @@ public class Coordinates {
         super();
     }
 
+    @Override
+    public String toString() {
+        return "Coordinates{" +
+                "lon=" + lon +
+                ", lat=" + lat +
+                '}';
+    }
+
     public Double getLon() {
         return lon;
     }

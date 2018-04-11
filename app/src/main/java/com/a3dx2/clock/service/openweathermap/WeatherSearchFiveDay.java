@@ -91,6 +91,7 @@ public class WeatherSearchFiveDay {
         @Override
         public void handleResult(FiveDayResult result) {
             if (result != null) {
+                activity.setWeatherForecast(result);
                 ClockSettings clockSettings = new ClockSettings(activity);
                 Integer timeInterval = Integer.valueOf(clockSettings.getWeatherTimeInterval());
                 Integer color = Color.parseColor(clockSettings.getTextColor());

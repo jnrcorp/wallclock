@@ -1,23 +1,24 @@
 package com.a3dx2.clock.service.openweathermap.model;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-public class Sun {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class System {
 
     private String country;
-    private Date sunrise;
-    private Date sunset;
+    private String sunrise;
+    private String sunset;
 
-    public Sun() {
+    public System() {
         super();
     }
 
     @Override
     public String toString() {
-        return "Sun{" +
+        return "System{" +
                 "country='" + country + '\'' +
-                ", sunrise=" + sunrise +
-                ", sunset=" + sunset +
+                ", sunrise='" + sunrise + '\'' +
+                ", sunset='" + sunset + '\'' +
                 '}';
     }
 
@@ -29,19 +30,19 @@ public class Sun {
         this.country = country;
     }
 
-    public Date getSunrise() {
+    public String getSunrise() {
         return sunrise;
     }
 
-    public void setSunrise(Date sunrise) {
+    public void setSunrise(String sunrise) {
         this.sunrise = sunrise;
     }
 
-    public Date getSunset() {
+    public String getSunset() {
         return sunset;
     }
 
-    public void setSunset(Date sunset) {
+    public void setSunset(String sunset) {
         this.sunset = sunset;
     }
 }
