@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ScrollView
+        android:id="@+id/scrollingView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="outsideInset"
+        android:scrollbarThumbVertical="@android:color/white"
+        android:fadeScrollbars="false"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:layout_gravity="center">
+
+        <LinearLayout
+            android:id="@+id/weather_statuses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center"
+            android:orientation="vertical">
+
+            <com.a3dx2.clock.view.WeatherDayView
+                android:id="@+id/weather_day_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="20sp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</merge>

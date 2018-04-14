@@ -7,6 +7,8 @@ import java.util.Arrays;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FiveDayResult {
 
+    private String country;
+    private City city;
     private SingleDayResult[] list;
 
     public FiveDayResult() {
@@ -18,6 +20,22 @@ public class FiveDayResult {
         return "FiveDayResult{" +
                 "list=" + Arrays.toString(list) +
                 '}';
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
     }
 
     public SingleDayResult[] getList() {

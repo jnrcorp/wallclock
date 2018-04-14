@@ -11,30 +11,34 @@ import com.a3dx2.clock.service.WebServiceCaller;
 import com.a3dx2.clock.service.WebServiceResultHandler;
 import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
 import com.a3dx2.clock.service.openweathermap.model.Weather;
+import com.a3dx2.clock.view.WeatherCurrentView;
 import com.a3dx2.clock.weather.WeatherUtil;
 
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WeatherSearchCurrent {
+public class WeatherSearchCurrent implements WebServiceWrapper {
 
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
     private static final String WEATHER_MAP_SEARCH_CURRENT_URL = "https://api.openweathermap.org/data/2.5/weather?APPID=%s&lat=%f&lon=%f&units=imperial";
 
-    private final ClockMain activity;
-    private final WeatherSearchCurrentResultHandler handler = new WeatherSearchCurrentResultHandler();
-    private WebServiceCaller webServiceCaller;
+    private final WeatherCurrentView view;
+    private final WeatherSearchCurrentResultHandler handler;
+    private WebServiceCaller<CurrentLocationResult> webServiceCaller;
 
-    public WeatherSearchCurrent(ClockMain activity) {
-        this.activity = activity;
+    public WeatherSearchCurrent(WeatherCurrentView view) {
+        this.view = view;
+        this.handler = new WeatherSearchCurrentResultHandler();
     }
 
+    @Override
     public void execute(Location location, String openWeatherMapApiKey) {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
-        String url = String.format(WEATHER_MAP_SEARCH_CURRENT_URL, openWeatherMapApiKey, latitude, longitude);
-        this.webServiceCaller = new WebServiceCaller<CurrentLocationResult>(url, CurrentLocationResult.class, handler);
+        String url = String.format(Locale.US, WEATHER_MAP_SEARCH_CURRENT_URL, openWeatherMapApiKey, latitude, longitude);
+        this.webServiceCaller = new WebServiceCaller<>(url, CurrentLocationResult.class, handler);
         Void[] theVoid = null;
         webServiceCaller.execute(theVoid);
     }
@@ -43,16 +47,7 @@ public class WeatherSearchCurrent {
         @Override
         public void handleResult(CurrentLocationResult result) {
             if (result != null) {
-                activity.setWeatherCurrent(result);
-                LOGGER.log(Level.INFO, "currentConditions=" + result.toString());
-                Weather weather = result.getWeather()[0];
-                String weatherIconId = "@drawable/weather" + weather.getIcon();
-                Integer drawableId = activity.getResources().getIdentifier(weatherIconId, "drawable", activity.getPackageName());
-                ImageView imageView = activity.findViewById(R.id.current_weather_image);
-                imageView.setImageResource(drawableId);
-                TextView textView = activity.findViewById(R.id.current_weather_temp);
-                String temperature = WeatherUtil.formatTemperature(result.getMain().getTemp());
-                textView.setText(temperature);
+                view.createLayoutWithData(result);
             }
         }
     }

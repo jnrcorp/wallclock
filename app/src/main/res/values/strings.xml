@@ -2,8 +2,12 @@
     <string name="app_name">Always On Wall Clock &amp; Weather</string>
 
     <string name="settings_button">Settings</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_settings">Settings</string>
+
+    <string name="five_day_forecast">5 Day\nForecast for\n%s</string>
+    <string name="no_geo">No Geo</string>
+    <string name="no_key">No Key</string>
+    <string name="last_updated">Updated\n%s</string>
 
     <!-- Strings related to Settings -->
 

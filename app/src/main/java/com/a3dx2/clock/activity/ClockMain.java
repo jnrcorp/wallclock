@@ -4,11 +4,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,11 +19,9 @@ import android.view.View;
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.service.ClockUIService;
 import com.a3dx2.clock.service.CurrentWeatherUIService;
-import com.a3dx2.clock.service.ScrollingForecastUIService;
-import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
-import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
-import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
+import com.a3dx2.clock.view.WeatherCurrentView;
+import com.a3dx2.clock.view.WeatherForecastView;
 
 import java.util.Date;
 import java.util.logging.Level;
@@ -40,6 +40,7 @@ public class ClockMain extends AppCompatActivity {
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
+    private static final int UI_HIDE_DELAY = 100;
     private final Handler mHideHandler = new Handler();
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
@@ -84,7 +85,7 @@ public class ClockMain extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                if (weatherCurrent != null) {
+                if (weatherCurrentView.getWeatherCurrent() != null) {
                     int brightnessMode = Settings.System.getInt(mThis.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
                     if (Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL == brightnessMode) {
                         int brightnessLevel = isNight() ? 0 : 255;
@@ -94,15 +95,22 @@ public class ClockMain extends AppCompatActivity {
             } catch (Settings.SettingNotFoundException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot find screen brightness mode");
             } finally {
-                brightnessHandler.postDelayed(this, 60*1000);
+                brightnessHandler.postDelayed(this, 5*60*1000);
             }
         }
 
         private boolean isNight() {
-            Long sunsetTime = Long.valueOf(weatherCurrent.getSys().getSunset());
-            Long sunriseTime = Long.valueOf(weatherCurrent.getSys().getSunrise());
-            Date sunset = new Date(sunsetTime * 1000);
+            Long sunriseTime = Long.valueOf(weatherCurrentView.getWeatherCurrent().getSys().getSunrise());
+            Long sunsetTime = Long.valueOf(weatherCurrentView.getWeatherCurrent().getSys().getSunset());
+            Date now = new Date();
             Date sunrise = new Date(sunriseTime * 1000);
+            Date sunset = new Date(sunsetTime * 1000);
+            if (now.compareTo(sunrise) >= 0 && now.compareTo(sunset) <= 0) {
+                return false;
+            } else if (now.compareTo(sunset) >= 0) {
+                return true;
+            }
+            LOGGER.log(Level.SEVERE, "Unhandled Sunrise/Sunset situation. now={}, sunrise={}, sunset={}", new Object[] { now, sunrise, sunset });
             return sunset.compareTo(sunrise) > 0;
         }
 
@@ -114,44 +122,31 @@ public class ClockMain extends AppCompatActivity {
     private ClockMain mThis = this;
     private ClockSettings clockSettings;
     private ClockUIService clockUIService;
-    private ScrollingForecastUIService scrollingForecastUIService;
-    private WeatherUpdateService weatherUpdateService;
     private CurrentWeatherUIService currentWeatherUIService;
 
-    private CurrentLocationResult weatherCurrent;
-    private FiveDayResult weatherForecast;
-
-    public CurrentLocationResult getWeatherCurrent() {
-        return weatherCurrent;
-    }
-
-    public void setWeatherCurrent(CurrentLocationResult weatherCurrent) {
-        this.weatherCurrent = weatherCurrent;
-    }
-
-    public FiveDayResult getWeatherForecast() {
-        return weatherForecast;
-    }
-
-    public void setWeatherForecast(FiveDayResult weatherForecast) {
-        this.weatherForecast = weatherForecast;
-    }
+    private WeatherForecastView weatherForecastView;
+    private WeatherCurrentView weatherCurrentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        reload();
+    }
+
+    private void reload() {
 
         setContentView(R.layout.activity_clock_main);
 
+        setKeyForDeveloper();
         clockSettings = new ClockSettings(this);
         clockUIService = new ClockUIService(this);
-        scrollingForecastUIService = new ScrollingForecastUIService(this);
-        weatherUpdateService = new WeatherUpdateService(this);
         currentWeatherUIService = new CurrentWeatherUIService(this);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
+        weatherForecastView = findViewById(R.id.weather_forecast_view);
+        weatherCurrentView = findViewById(R.id.weather_current_view);
 
         if (ActivityCompat.checkSelfPermission(mThis, Manifest.permission.WRITE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(mThis, new String[]{Manifest.permission.WRITE_SETTINGS}, PERMMISSIONS_WRITE_SETTINGS_REQUEST_ID);
@@ -180,22 +175,24 @@ public class ClockMain extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_LOCATION_REQUEST_ID);
         } else {
-            weatherUpdateService.startWeatherUpdate();
+            weatherForecastView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+            weatherCurrentView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        onResumeHelper();
+    }
+
+    private void onResumeHelper() {
         clockSettings = new ClockSettings(this);
         setBackgroundColor();
         clockUIService.updateFont(clockSettings);
         currentWeatherUIService.updateText(clockSettings);
-        scrollingForecastUIService.updateDisplayTimeInterval(clockSettings);
-        scrollingForecastUIService.updateUI(clockSettings);
-        scrollingForecastUIService.activateScroll();
-        weatherUpdateService.startWeatherUpdate();
-        weatherUpdateService.updateLastTimeUI(clockSettings);
+        weatherForecastView.updateConfiguration(clockSettings);
+        weatherCurrentView.updateConfiguration(clockSettings);
         restartBrightnessChecker();
     }
 
@@ -208,47 +205,43 @@ public class ClockMain extends AppCompatActivity {
         }
     }
 
-    public void processNoApiKey() {
-        scrollingForecastUIService.alertKeyMissing();
-        setKeyForDeveloper();
-    }
-
-    public void processNoLocation() {
-        scrollingForecastUIService.alertNoLocation();
-    }
-
     public void setBackgroundColor() {
         String backgroundColor = clockSettings.getBackgroundColor();
         getWindow().getDecorView().findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(backgroundColor));
     }
 
-    public ClockSettings getClockSettings() {
-        return clockSettings;
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        reload();
+        onResumeHelper();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        weatherUpdateService.stopWeatherUpdate();
+        weatherForecastView.stopWeatherDataUpdate();
+        weatherCurrentView.stopWeatherDataUpdate();
     }
 
+    @SuppressLint("ApplySharedPref") // We need to ensure the key is set because the rest of the code relies on it being available.
     private void setKeyForDeveloper() {
         String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
         String apiKey = ""; // If you are a developer, you can put a key here, but do not commit it to the repo.
         if (openWeatherApiKey.trim().isEmpty() && !apiKey.trim().isEmpty()) {
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).commit();
-            clockSettings = new ClockSettings(this);
-            weatherUpdateService.startWeatherUpdate();
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMMISSIONS_LOCATION_REQUEST_ID: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    weatherUpdateService.startWeatherUpdate();
+                    String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
+                    weatherForecastView.initializeWeatherData(openWeatherApiKey, clockSettings.getUpdateFrequencyMinutes());
+                    weatherCurrentView.initializeWeatherData(openWeatherApiKey, clockSettings.getUpdateFrequencyMinutes());
                 }
                 break;
             }
@@ -266,9 +259,8 @@ public class ClockMain extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
 
         // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
+        // created, to briefly hint to the user that UI controls are available.
+        delayedHide(UI_HIDE_DELAY);
     }
 
     private void toggle() {

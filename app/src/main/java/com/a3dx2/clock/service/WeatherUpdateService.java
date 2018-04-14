@@ -1,7 +1,6 @@
 package com.a3dx2.clock.service;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -9,10 +8,8 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 
-import com.a3dx2.clock.activity.ClockMain;
-import com.a3dx2.clock.service.model.ClockSettings;
-import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
-import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
+import com.a3dx2.clock.service.openweathermap.WebServiceWrapper;
+import com.a3dx2.clock.view.WebServiceAwareView;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -26,20 +23,27 @@ public class WeatherUpdateService {
     private final Handler weatherUpdateHandler = new Handler();
     private final UpdateWeatherRunnable updateWeatherRunnable = new UpdateWeatherRunnable();
 
-    private final ClockMain activity;
+    private final Context context;
+    private final WebServiceAwareView view;
+    private final WebServiceWrapper wrapper;
 
-    private final WeatherSearchFiveDay fiveDay;
-    private final WeatherSearchCurrent currentWeather;
-
+    private String openWeatherApiKey;
+    private Integer updateFrequencyMinutes;
     private Date lastWeatherUpdate;
 
-    public WeatherUpdateService(ClockMain activity) {
-        this.activity = activity;
-        this.fiveDay = new WeatherSearchFiveDay(activity, this);
-        this.currentWeather = new WeatherSearchCurrent(activity);
+    public WeatherUpdateService(Context context, WebServiceAwareView view, WebServiceWrapper wrapper) {
+        this.context = context;
+        this.view = view;
+        this.wrapper = wrapper;
     }
 
-    public void startWeatherUpdate() {
+    private void updateConfiguration(String openWeatherApiKey, Integer updateFrequencyMinutes) {
+        this.openWeatherApiKey = openWeatherApiKey;
+        this.updateFrequencyMinutes = updateFrequencyMinutes;
+    }
+
+    public void startWeatherUpdate(String openWeatherApiKey, Integer updateFrequencyMinutes) {
+        updateConfiguration(openWeatherApiKey, updateFrequencyMinutes);
         weatherUpdateHandler.removeCallbacks(updateWeatherRunnable);
         weatherUpdateHandler.post(updateWeatherRunnable);
     }
@@ -52,41 +56,34 @@ public class WeatherUpdateService {
         this.lastWeatherUpdate = new Date();
     }
 
-    public void updateLastTimeUI(ClockSettings clockSettings) {
-        fiveDay.updateLastUpdatedTimeUI(clockSettings);
-    }
-
     private class UpdateWeatherRunnable implements Runnable {
 
         @Override
         public void run() {
-            Integer updateFrequency = activity.getClockSettings().getUpdateFrequencyMinutes();
             try {
-                String openWeatherApiKey = activity.getClockSettings().getOpenWeatherApiKey();
-                getWeather(updateFrequency, openWeatherApiKey);
+                getWeather();
             } catch (Exception ex) {
                 LOGGER.log(Level.ALL, ex.getMessage(), ex);
             } finally {
-                weatherUpdateHandler.postDelayed(this, updateFrequency*60*1000);
+                weatherUpdateHandler.postDelayed(this, updateFrequencyMinutes*60*1000);
             }
         }
 
-        private void getWeather(Integer updateFrequency, String openWeatherApiKey) {
+        private void getWeather() {
             LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
-            if (!openWeatherApiKey.trim().isEmpty() && isWeatherUpdateDue(updateFrequency)) {
-                LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (!openWeatherApiKey.trim().isEmpty() && isWeatherUpdateDue(updateFrequencyMinutes)) {
+                LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
                 Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (location != null) {
-                    fiveDay.execute(location, openWeatherApiKey);
-                    currentWeather.execute(location, openWeatherApiKey);
+                    wrapper.execute(location, openWeatherApiKey);
                 } else {
-                    activity.processNoLocation();
+                    view.processNoLocation();
                 }
             } else if (openWeatherApiKey.trim().isEmpty()) {
-                activity.processNoApiKey();
+                view.processNoApiKey();
             }
         }
 

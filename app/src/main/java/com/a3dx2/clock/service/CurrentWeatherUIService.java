@@ -36,8 +36,7 @@ public class CurrentWeatherUIService {
 
     private void setIconSize(ClockSettings clockSettings) {
         Double iconSizeMultiplier = clockSettings.getIconSizeMultiplier();
-        WeatherUtil.resizeIcon(currentTempIcon, iconSizeMultiplier);
+        WeatherUtil.resizeIcon(currentTempIcon, iconSizeMultiplier.floatValue());
     }
-
 
 }

@@ -13,12 +13,12 @@ public final class WeatherUtil {
         return temperature.intValue() + "" + (char) 0x00B0;
     }
 
-    public static void resizeIcon(ImageView imageView, Double iconSizeMultiplier) {
+    public static void resizeIcon(ImageView imageView, float iconSizeMultiplier) {
         Drawable drawable = imageView.getDrawable();
         resizeIcon(imageView, drawable, iconSizeMultiplier);
     }
 
-    public static void resizeIcon(ImageView imageView, Drawable drawable, Double iconSizeMultiplier) {
+    public static void resizeIcon(ImageView imageView, Drawable drawable, float iconSizeMultiplier) {
         int width = (int) (drawable.getIntrinsicWidth() * iconSizeMultiplier);
         int height = (int) (drawable.getIntrinsicHeight() * iconSizeMultiplier);
         android.view.ViewGroup.LayoutParams layoutParams = imageView.getLayoutParams();

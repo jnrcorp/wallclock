@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Dimension;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -19,9 +20,10 @@ import android.widget.TextView;
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.weather.WeatherUtil;
 
+import org.springframework.util.StringUtils;
+
 public class WeatherDayView extends LinearLayout {
 
-    private LinearLayout container;
     private ImageView weatherIcon;
     private TextView weatherTemperature;
     private TextView weatherDay;
@@ -42,26 +44,50 @@ public class WeatherDayView extends LinearLayout {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
-        setOrientation(VERTICAL);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.weather_day_view, this, true);
-        weatherIcon = (ImageView) findViewById(R.id.weather_image);
-        weatherTemperature = (TextView) findViewById(R.id.weather_temp);
-        weatherDay = (TextView) findViewById(R.id.weather_day_of_week);
-        container = (LinearLayout) findViewById(R.id.weather_container);
+        this.weatherIcon = (ImageView) findViewById(R.id.weather_image);
+        this.weatherTemperature = (TextView) findViewById(R.id.weather_temp);
+        this.weatherDay = (TextView) findViewById(R.id.weather_day_of_week);
+        TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeatherDayView, 0, 0);
+        try {
+            String temperature = attributes.getString(R.styleable.WeatherDayView_temperature);
+            setTemperature(temperature);
+            String dayOfWeek = attributes.getString(R.styleable.WeatherDayView_dayOfWeek);
+            setDayOfWeek(dayOfWeek);
+            int textColor = attributes.getColor(R.styleable.WeatherDayView_textColor, Color.WHITE);
+            setTextColor(textColor);
+            float temperatureTextSize = attributes.getDimension(R.styleable.WeatherDayView_temperatureTextSize, 30);
+            setTemperatureTextSize(temperatureTextSize);
+            float dayOfWeekTextSize = attributes.getDimension(R.styleable.WeatherDayView_dayOfWeekTextSize, 20);
+            setDayOfWeekTextSize(dayOfWeekTextSize);
+            int weatherIcon = attributes.getInt(R.styleable.WeatherDayView_weatherIcon, R.drawable.weather01d);
+            float iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherDayView_iconSizeMultiplier, 3);
+            setWeatherIcon(weatherIcon, iconSizeMultiplier);
+        } finally {
+            attributes.recycle();
+        }
     }
 
-    public void setWeatherIcon(Drawable drawable, Double iconSizeMultiplier) {
+    public void setWeatherIcon(int id, float iconSizeMultiplier) {
+        Drawable drawable = getContext().getDrawable(id);
         WeatherUtil.resizeIcon(weatherIcon, drawable, iconSizeMultiplier);
     }
 
-    public void resizeWeatherIcon(Double iconSizeMultiplier) {
+    public void setIconSizeMultiplier(float iconSizeMultiplier) {
         WeatherUtil.resizeIcon(weatherIcon, iconSizeMultiplier);
     }
 
-    public void setWeatherTemperature(Double temperature) {
-        String temp = WeatherUtil.formatTemperature(temperature);
-        weatherTemperature.setText(temp);
+    public void setTemperatureFormatted(Double temp) {
+        String temperature = WeatherUtil.formatTemperature(temp);
+        setTemperature(temperature);
+    }
+
+    public void setTemperature(String temperature) {
+        if (temperature == null || temperature.trim().isEmpty()) {
+            temperature = "...";
+        }
+        weatherTemperature.setText(temperature);
     }
 
     public void setTextColor(int color) {
@@ -69,13 +95,16 @@ public class WeatherDayView extends LinearLayout {
         weatherDay.setTextColor(color);
     }
 
-    public void setWeatherDayOfWeek(String date) {
-        weatherDay.setText(date);
+    public void setDayOfWeek(String dayOfWeek) {
+        weatherDay.setText(dayOfWeek);
     }
 
-    public void setFontSize(Integer fontSizeTempSP, Integer fontSizeTimeSP) {
-        weatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTempSP);
-        weatherDay.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSizeTimeSP);
+    public void setDayOfWeekTextSize(float textSize) {
+        weatherDay.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+    }
+
+    public void setTemperatureTextSize(float textSize) {
+        weatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
     }
 
 }
