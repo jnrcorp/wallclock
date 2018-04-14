@@ -9,7 +9,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
@@ -116,6 +115,7 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
         this.temperatureTextSize = clockSettings.getFontSizeWeatherTemp();
         this.iconSizeMultiplier = clockSettings.getIconSizeMultiplier().floatValue();
         currentWeatherTemperature.setTextColor(textColor);
+        currentWeatherDetails.setTextColor(textColor);
         currentWeatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, temperatureTextSize);
         WeatherUtil.resizeIcon(currentWeatherImage, iconSizeMultiplier);
     }
