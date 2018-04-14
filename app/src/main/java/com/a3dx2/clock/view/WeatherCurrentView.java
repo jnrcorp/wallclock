@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,12 +20,17 @@ import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
 import com.a3dx2.clock.service.openweathermap.model.Weather;
 import com.a3dx2.clock.weather.WeatherUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WeatherCurrentView extends LinearLayout implements WebServiceAwareView {
+public class WeatherCurrentView extends FrameLayout implements WebServiceAwareView {
 
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
+
+    private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
 
     private WeatherUpdateService weatherUpdateService;
 
@@ -32,6 +38,7 @@ public class WeatherCurrentView extends LinearLayout implements WebServiceAwareV
 
     private TextView currentWeatherTemperature;
     private ImageView currentWeatherImage;
+    private TextView currentWeatherDetails;
 
     private int textColor;
     private float temperatureTextSize;
@@ -65,6 +72,7 @@ public class WeatherCurrentView extends LinearLayout implements WebServiceAwareV
         TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeatherCurrentView, 0, 0);
         this.currentWeatherTemperature = findViewById(R.id.current_weather_temp);
         this.currentWeatherImage = findViewById(R.id.current_weather_image);
+        this.currentWeatherDetails = findViewById(R.id.current_weather_details);
         this.weatherUpdateService = new WeatherUpdateService(context, this, new WeatherSearchCurrent(this));
         this.textColor = attributes.getColor(R.styleable.WeatherCurrentView_textColor, Color.WHITE);
         this.iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherCurrentView_iconSizeMultiplier, 3);
@@ -85,6 +93,9 @@ public class WeatherCurrentView extends LinearLayout implements WebServiceAwareV
         currentWeatherImage.setImageResource(drawableId);
         String temperature = WeatherUtil.formatTemperature(result.getMain().getTemp());
         currentWeatherTemperature.setText(temperature);
+        String lastUpdatedDate = HOUR_MINUTE_FORMAT.format(new Date());
+        String details = getContext().getString(R.string.current_weather_details, result.getName(), lastUpdatedDate);
+        currentWeatherDetails.setText(details);
     }
 
     public void initializeWeatherData(String openWeatherMapApiKey, Integer updateFrequencyMinutes) {

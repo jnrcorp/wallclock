@@ -8,6 +8,7 @@
     <string name="no_geo">No Geo</string>
     <string name="no_key">No Key</string>
     <string name="last_updated">Updated\n%s</string>
+    <string name="current_weather_details">%s - Updated %s</string>
 
     <!-- Strings related to Settings -->
 
