@@ -11,8 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import com.a3dx2.clock.service.openweathermap.WebServiceWrapper;
 import com.a3dx2.clock.view.WebServiceAwareView;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +27,6 @@ public class WeatherUpdateService {
 
     private String openWeatherApiKey;
     private Integer updateFrequencyMinutes;
-    private Date lastWeatherUpdate;
 
     public WeatherUpdateService(Context context, WebServiceAwareView view, WebServiceWrapper wrapper) {
         this.context = context;
@@ -52,10 +49,6 @@ public class WeatherUpdateService {
         weatherUpdateHandler.removeCallbacks(updateWeatherRunnable);
     }
 
-    public void setLastWeatherUpdate() {
-        this.lastWeatherUpdate = new Date();
-    }
-
     private class UpdateWeatherRunnable implements Runnable {
 
         @Override
@@ -71,11 +64,12 @@ public class WeatherUpdateService {
 
         private void getWeather() {
             LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
-            if (!openWeatherApiKey.trim().isEmpty() && isWeatherUpdateDue(updateFrequencyMinutes)) {
-                LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            if (!openWeatherApiKey.trim().isEmpty()) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
+                LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                assert lm != null;
                 Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (location != null) {
                     wrapper.execute(location, openWeatherApiKey);
@@ -85,17 +79,6 @@ public class WeatherUpdateService {
             } else if (openWeatherApiKey.trim().isEmpty()) {
                 view.processNoApiKey();
             }
-        }
-
-        private boolean isWeatherUpdateDue(Integer updateFrequency) {
-            if (lastWeatherUpdate == null) {
-                return true;
-            }
-            Calendar nextUpdate = Calendar.getInstance();
-            nextUpdate.setTime(lastWeatherUpdate);
-            nextUpdate.add(Calendar.MINUTE, updateFrequency-5);
-            Date now = new Date();
-            return now.compareTo(nextUpdate.getTime()) > 0;
         }
 
     }
