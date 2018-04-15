@@ -1,21 +1,13 @@
 package com.a3dx2.clock.service.openweathermap;
 
 import android.location.Location;
-import android.media.Image;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.a3dx2.clock.R;
-import com.a3dx2.clock.activity.ClockMain;
 import com.a3dx2.clock.service.WebServiceCaller;
 import com.a3dx2.clock.service.WebServiceResultHandler;
 import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
-import com.a3dx2.clock.service.openweathermap.model.Weather;
 import com.a3dx2.clock.view.WeatherCurrentView;
-import com.a3dx2.clock.weather.WeatherUtil;
 
 import java.util.Locale;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WeatherSearchCurrent implements WebServiceWrapper {
@@ -26,7 +18,6 @@ public class WeatherSearchCurrent implements WebServiceWrapper {
 
     private final WeatherCurrentView view;
     private final WeatherSearchCurrentResultHandler handler;
-    private WebServiceCaller<CurrentLocationResult> webServiceCaller;
 
     public WeatherSearchCurrent(WeatherCurrentView view) {
         this.view = view;
@@ -38,7 +29,7 @@ public class WeatherSearchCurrent implements WebServiceWrapper {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
         String url = String.format(Locale.US, WEATHER_MAP_SEARCH_CURRENT_URL, openWeatherMapApiKey, latitude, longitude);
-        this.webServiceCaller = new WebServiceCaller<>(url, CurrentLocationResult.class, handler);
+        WebServiceCaller<CurrentLocationResult> webServiceCaller = new WebServiceCaller<>(url, CurrentLocationResult.class, handler);
         Void[] theVoid = null;
         webServiceCaller.execute(theVoid);
     }

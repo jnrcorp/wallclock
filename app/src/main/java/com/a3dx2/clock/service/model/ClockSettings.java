@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.a3dx2.clock.R;
-import com.a3dx2.clock.activity.ClockMain;
 
 public class ClockSettings {
 
@@ -19,6 +18,7 @@ public class ClockSettings {
     private final Integer fontSizeWeatherTime;
     private final Double iconSizeMultiplier;
     private final Integer weatherTimeInterval;
+    private final boolean manageBrightness;
 
     public ClockSettings(Context context) {
         super();
@@ -39,6 +39,8 @@ public class ClockSettings {
         this.iconSizeMultiplier = Double.valueOf(iconSizePref);
         String timeIntervalPref = preferences.getString(context.getString(R.string.pref_key_weather_time_interval), context.getString(R.string.default_time_interval_weather));
         this.weatherTimeInterval = Integer.valueOf(timeIntervalPref);
+        String manageBrightnessPref = preferences.getString(context.getString(R.string.pref_key_manage_brightness), "true");
+        this.manageBrightness = Boolean.valueOf(manageBrightnessPref);
     }
 
     public String getOpenWeatherApiKey() {
@@ -80,4 +82,9 @@ public class ClockSettings {
     public Integer getWeatherTimeInterval() {
         return weatherTimeInterval;
     }
+
+    public boolean isManageBrightness() {
+        return manageBrightness;
+    }
+
 }

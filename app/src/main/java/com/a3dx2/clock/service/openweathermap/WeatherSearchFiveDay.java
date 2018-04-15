@@ -18,7 +18,6 @@ public class WeatherSearchFiveDay implements WebServiceWrapper {
 
     private final WeatherForecastView view;
     private final WeatherSearchFiveDayResultHandler handler;
-    private WebServiceCaller<FiveDayResult> webServiceCaller;
 
     public WeatherSearchFiveDay(WeatherForecastView view) {
         this.view = view;
@@ -30,7 +29,7 @@ public class WeatherSearchFiveDay implements WebServiceWrapper {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
         String url = String.format(Locale.US, WEATHER_MAP_SEARCH_FIVE_DAY_URL, openWeatherMapApiKey, latitude, longitude);
-        this.webServiceCaller = new WebServiceCaller<>(url, FiveDayResult.class, handler);
+        WebServiceCaller<FiveDayResult> webServiceCaller = new WebServiceCaller<>(url, FiveDayResult.class, handler);
         Void[] theVoid = null;
         webServiceCaller.execute(theVoid);
     }

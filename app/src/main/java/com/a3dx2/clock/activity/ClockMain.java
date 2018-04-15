@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -17,21 +16,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.service.BrightnessService;
 import com.a3dx2.clock.service.ClockUIService;
 import com.a3dx2.clock.service.CurrentWeatherUIService;
+import com.a3dx2.clock.service.model.BrightnessContext;
 import com.a3dx2.clock.service.model.ClockSettings;
 import com.a3dx2.clock.view.WeatherCurrentView;
 import com.a3dx2.clock.view.WeatherForecastView;
 
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class ClockMain extends AppCompatActivity {
+public class ClockMain extends AppCompatActivity implements BrightnessAwareActivity {
 
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
@@ -80,42 +80,6 @@ public class ClockMain extends AppCompatActivity {
         }
     };
 
-    private final Handler brightnessHandler = new Handler();
-    private final Runnable updateBrightness = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                if (weatherCurrentView.getWeatherCurrent() != null) {
-                    int brightnessMode = Settings.System.getInt(mThis.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
-                    if (Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL == brightnessMode) {
-                        int brightnessLevel = isNight() ? 0 : 255;
-                        Settings.System.putInt(mThis.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
-                    }
-                }
-            } catch (Settings.SettingNotFoundException ex) {
-                LOGGER.log(Level.SEVERE, "Cannot find screen brightness mode");
-            } finally {
-                brightnessHandler.postDelayed(this, 5*60*1000);
-            }
-        }
-
-        private boolean isNight() {
-            Long sunriseTime = Long.valueOf(weatherCurrentView.getWeatherCurrent().getSys().getSunrise());
-            Long sunsetTime = Long.valueOf(weatherCurrentView.getWeatherCurrent().getSys().getSunset());
-            Date now = new Date();
-            Date sunrise = new Date(sunriseTime * 1000);
-            Date sunset = new Date(sunsetTime * 1000);
-            if (now.compareTo(sunrise) >= 0 && now.compareTo(sunset) <= 0) {
-                return false;
-            } else if (now.compareTo(sunset) >= 0) {
-                return true;
-            }
-            LOGGER.log(Level.SEVERE, "Unhandled Sunrise/Sunset situation. now={}, sunrise={}, sunset={}", new Object[] { now, sunrise, sunset });
-            return sunset.compareTo(sunrise) > 0;
-        }
-
-    };
-
     private final int PERMMISSIONS_LOCATION_REQUEST_ID = 9302;
     private final int PERMMISSIONS_WRITE_SETTINGS_REQUEST_ID = 9303;
 
@@ -123,6 +87,7 @@ public class ClockMain extends AppCompatActivity {
     private ClockSettings clockSettings;
     private ClockUIService clockUIService;
     private CurrentWeatherUIService currentWeatherUIService;
+    private BrightnessService brightnessService;
 
     private WeatherForecastView weatherForecastView;
     private WeatherCurrentView weatherCurrentView;
@@ -141,6 +106,7 @@ public class ClockMain extends AppCompatActivity {
         clockSettings = new ClockSettings(this);
         clockUIService = new ClockUIService(this);
         currentWeatherUIService = new CurrentWeatherUIService(this);
+        brightnessService = new BrightnessService(this);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -194,15 +160,11 @@ public class ClockMain extends AppCompatActivity {
         weatherForecastView.updateConfiguration(clockSettings);
         weatherCurrentView.updateConfiguration(clockSettings);
         restartBrightnessChecker();
+        delayedHide(UI_HIDE_DELAY);
     }
 
     public void restartBrightnessChecker() {
-        String manageBrightnessPref = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_manage_brightness), "true");
-        boolean manageBrightness = Boolean.valueOf(manageBrightnessPref);
-        brightnessHandler.removeCallbacks(updateBrightness);
-        if (manageBrightness) {
-            brightnessHandler.post(updateBrightness);
-        }
+        brightnessService.startUpdateBrightness(clockSettings.isManageBrightness());
     }
 
     public void setBackgroundColor() {
@@ -309,6 +271,18 @@ public class ClockMain extends AppCompatActivity {
     private void loadSettings() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public BrightnessContext getBrightnessContext() {
+        if (weatherCurrentView.getWeatherCurrent() != null) {
+            Long sunriseTime = Long.valueOf(weatherCurrentView.getWeatherCurrent().getSys().getSunrise());
+            Long sunsetTime = Long.valueOf(weatherCurrentView.getWeatherCurrent().getSys().getSunset());
+            Date sunrise = new Date(sunriseTime * 1000);
+            Date sunset = new Date(sunsetTime * 1000);
+            return new BrightnessContext(sunrise, sunset);
+        }
+        return null;
     }
 
 }

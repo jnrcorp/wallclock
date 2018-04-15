@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
@@ -41,7 +40,6 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
 
     private FiveDayResult weatherForecast;
 
-    private FrameLayout scrollingView;
     private LinearLayout weatherStatuses;
 
     private TextView forecast;
@@ -78,7 +76,7 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         assert inflater != null;
         inflater.inflate(R.layout.weather_forecast_view, this, true);
-        this.scrollingView = findViewById(R.id.scrollingView);
+        FrameLayout scrollingView = findViewById(R.id.scrollingView);
         this.weatherStatuses = findViewById(R.id.weather_statuses);
         this.lastUpdatedTime = new TextView(context);
         this.forecast = new TextView(context);
@@ -138,7 +136,6 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         forecast.setText(getContext().getString(R.string.five_day_forecast, result.getCity().getName()));
         weatherStatuses.removeAllViews();
         weatherStatuses.addView(forecast);
-        weatherUpdateService.setLastWeatherUpdate();
         int counter = 0;
         LOGGER.log(Level.INFO, "weatherData=" + result.toString());
         for (SingleDayResult singleDay : result.getList()) {
