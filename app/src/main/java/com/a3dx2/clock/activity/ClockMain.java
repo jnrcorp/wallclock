@@ -159,6 +159,8 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
         currentWeatherUIService.updateText(clockSettings);
         weatherForecastView.updateConfiguration(clockSettings);
         weatherCurrentView.updateConfiguration(clockSettings);
+        weatherForecastView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+        weatherCurrentView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
         restartBrightnessChecker();
         delayedHide(UI_HIDE_DELAY);
     }
