@@ -11,6 +11,7 @@
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
 
+    <!-- NOTE: https://github.com/jaredrummler/ColorPicker -->
     <com.jaredrummler.android.colorpicker.ColorPreference
         android:defaultValue="@color/default_background_color"
         android:key="@string/pref_key_background_color"
