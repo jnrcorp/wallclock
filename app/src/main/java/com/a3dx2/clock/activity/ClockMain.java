@@ -157,10 +157,8 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
         setBackgroundColor();
         clockUIService.updateFont(clockSettings);
         currentWeatherUIService.updateText(clockSettings);
-        weatherForecastView.updateConfiguration(clockSettings);
         weatherCurrentView.updateConfiguration(clockSettings);
-        weatherForecastView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
-        weatherCurrentView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+        weatherForecastView.updateConfiguration(clockSettings);
         restartBrightnessChecker();
         delayedHide(UI_HIDE_DELAY);
     }
@@ -170,8 +168,8 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
     }
 
     public void setBackgroundColor() {
-        String backgroundColor = clockSettings.getBackgroundColor();
-        getWindow().getDecorView().findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(backgroundColor));
+        Integer backgroundColor = clockSettings.getBackgroundColor();
+        getWindow().getDecorView().findViewById(android.R.id.content).setBackgroundColor(backgroundColor);
     }
 
     @Override
@@ -184,14 +182,12 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
     @Override
     protected void onPause() {
         super.onPause();
-        weatherForecastView.stopWeatherDataUpdate();
-        weatherCurrentView.stopWeatherDataUpdate();
     }
 
     @SuppressLint("ApplySharedPref") // We need to ensure the key is set because the rest of the code relies on it being available.
     private void setKeyForDeveloper() {
         String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
-        String apiKey = ""; // If you are a developer, you can put a key here, but do not commit it to the repo.
+        String apiKey = "d8f5781f6a2392ab29b32af8dbe1b073"; // If you are a developer, you can put a key here, but do not commit it to the repo.
         if (openWeatherApiKey.trim().isEmpty() && !apiKey.trim().isEmpty()) {
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).commit();
         }

@@ -27,9 +27,8 @@ public class CurrentWeatherUIService {
     }
 
     private void setText(ClockSettings clockSettings) {
-        String textColor = clockSettings.getTextColor();
-        Integer color = Color.parseColor(textColor);
-        weatherTempTextView.setTextColor(color);
+        Integer textColor = clockSettings.getTextColor();
+        weatherTempTextView.setTextColor(textColor);
         Integer fontSizeTemp = clockSettings.getFontSizeWeatherTemp();
         weatherTempTextView.setTextSize(fontSizeTemp);
     }

@@ -72,6 +72,20 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         init(context, attrs);
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        ClockSettings clockSettings = new ClockSettings(getContext());
+        updateConfiguration(clockSettings);
+        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        stopWeatherDataUpdate();
+    }
+
     private void init(Context context, AttributeSet attrs) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         assert inflater != null;
@@ -193,7 +207,7 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
     public void updateConfiguration(ClockSettings clockSettings) {
         // Integer timeInterval, int textColor, float temperatureTextSize, float dayOfWeekTextSize, float iconSizeMultiplier
         this.timeInterval = clockSettings.getWeatherTimeInterval();
-        this.textColor = Color.parseColor(clockSettings.getTextColor());
+        this.textColor = clockSettings.getTextColor();
         this.temperatureTextSize = clockSettings.getFontSizeWeatherTemp();
         this.dayOfWeekTextSize = clockSettings.getFontSizeWeatherTime();
         this.iconSizeMultiplier = clockSettings.getIconSizeMultiplier().floatValue();

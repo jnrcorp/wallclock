@@ -2,6 +2,7 @@ package com.a3dx2.clock.service.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 
 import com.a3dx2.clock.R;
@@ -9,8 +10,8 @@ import com.a3dx2.clock.R;
 public class ClockSettings {
 
     private final String openWeatherApiKey;
-    private final String backgroundColor;
-    private final String textColor;
+    private final Integer backgroundColor;
+    private final Integer textColor;
     private final Integer updateFrequencyMinutes;
     private final Integer fontSizeClockTime;
     private final Integer fontSizeClockDate;
@@ -24,8 +25,10 @@ public class ClockSettings {
         super();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.openWeatherApiKey = preferences.getString(context.getString(R.string.pref_key_api_key), "");
-        this.backgroundColor = preferences.getString(context.getString(R.string.pref_key_background_color), context.getString(R.string.default_background_color));
-        this.textColor = preferences.getString(context.getString(R.string.pref_key_text_color), context.getString(R.string.default_text_color));
+        Integer defaultBackgroundColor = Color.parseColor(context.getString(R.string.default_background_color));
+        this.backgroundColor = preferences.getInt(context.getString(R.string.pref_key_background_color), defaultBackgroundColor);
+        Integer defaultTextColor = Color.parseColor(context.getString(R.string.default_text_color));
+        this.textColor = preferences.getInt(context.getString(R.string.pref_key_text_color), defaultTextColor);
         this.updateFrequencyMinutes = preferences.getInt(context.getString(R.string.pref_key_update_frequency), 30);
         String fontSizeClockTimePref = preferences.getString(context.getString(R.string.pref_key_font_size_time), context.getString(R.string.default_font_size_clock_time));
         this.fontSizeClockTime = Integer.valueOf(fontSizeClockTimePref);
@@ -47,11 +50,11 @@ public class ClockSettings {
         return openWeatherApiKey;
     }
 
-    public String getBackgroundColor() {
+    public Integer getBackgroundColor() {
         return backgroundColor;
     }
 
-    public String getTextColor() {
+    public Integer getTextColor() {
         return textColor;
     }
 
