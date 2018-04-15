@@ -187,7 +187,7 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
     @SuppressLint("ApplySharedPref") // We need to ensure the key is set because the rest of the code relies on it being available.
     private void setKeyForDeveloper() {
         String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
-        String apiKey = "d8f5781f6a2392ab29b32af8dbe1b073"; // If you are a developer, you can put a key here, but do not commit it to the repo.
+        String apiKey = ""; // If you are a developer, you can put a key here, but do not commit it to the repo.
         if (openWeatherApiKey.trim().isEmpty() && !apiKey.trim().isEmpty()) {
             PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_key_api_key), apiKey).commit();
         }
