@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
+import com.a3dx2.clock.service.model.WeatherUpdateContext;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
 import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
 import com.a3dx2.clock.service.openweathermap.model.Weather;
@@ -32,6 +33,7 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
     private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
 
     private WeatherUpdateService weatherUpdateService;
+    private WeatherUpdateContext weatherUpdateContext;
 
     private CurrentLocationResult weatherCurrent;
 
@@ -42,7 +44,6 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
     private int textColor;
     private float temperatureTextSize;
     private float iconSizeMultiplier;
-    private int timeInterval;
 
     public WeatherCurrentView(Context context) {
         super(context);
@@ -91,9 +92,10 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
         this.iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherCurrentView_iconSizeMultiplier, 3);
         this.temperatureTextSize = attributes.getDimension(R.styleable.WeatherCurrentView_temperatureTextSize, 30);
         String openWeatherMapApiKey = attributes.getString(R.styleable.WeatherCurrentView_openWeatherMapApiKey);
-        this.timeInterval = attributes.getInt(R.styleable.WeatherCurrentView_timeInterval, 1);
+        int updateFrequencyMinutes = attributes.getInt(R.styleable.WeatherForecastView_updateFrequencyMinutes, 30);
         if (openWeatherMapApiKey != null && !openWeatherMapApiKey.trim().isEmpty()) {
-            weatherUpdateService.startWeatherUpdate(openWeatherMapApiKey, this.timeInterval);
+            weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
+            weatherUpdateService.startWeatherUpdate();
         }
     }
 
@@ -115,7 +117,8 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
         if (openWeatherMapApiKey == null || openWeatherMapApiKey.trim().isEmpty()) {
             return;
         }
-        weatherUpdateService.startWeatherUpdate(openWeatherMapApiKey, updateFrequencyMinutes);
+        weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
+        weatherUpdateService.startWeatherUpdate();
     }
 
     public void stopWeatherDataUpdate() {
@@ -123,8 +126,7 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
     }
 
     public void updateConfiguration(ClockSettings clockSettings) {
-        // Integer timeInterval, int textColor, float temperatureTextSize, float iconSizeMultiplier
-        this.timeInterval = clockSettings.getWeatherTimeInterval();
+        // Integer timeInterval, int teUxtColor, float temperatureTextSize, float iconSizeMultiplier
         this.textColor = clockSettings.getTextColor();
         this.temperatureTextSize = clockSettings.getFontSizeWeatherTemp();
         this.iconSizeMultiplier = clockSettings.getIconSizeMultiplier().floatValue();
@@ -136,6 +138,11 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
 
     public CurrentLocationResult getWeatherCurrent() {
         return weatherCurrent;
+    }
+
+    @Override
+    public WeatherUpdateContext getWeatherUpdateContext() {
+        return weatherUpdateContext;
     }
 
     @Override

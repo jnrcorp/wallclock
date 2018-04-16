@@ -8,6 +8,7 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 
+import com.a3dx2.clock.service.model.WeatherUpdateContext;
 import com.a3dx2.clock.service.openweathermap.WebServiceWrapper;
 import com.a3dx2.clock.view.WebServiceAwareView;
 
@@ -25,22 +26,13 @@ public class WeatherUpdateService {
     private final WebServiceAwareView view;
     private final WebServiceWrapper wrapper;
 
-    private String openWeatherApiKey;
-    private Integer updateFrequencyMinutes;
-
     public WeatherUpdateService(Context context, WebServiceAwareView view, WebServiceWrapper wrapper) {
         this.context = context;
         this.view = view;
         this.wrapper = wrapper;
     }
 
-    private void updateConfiguration(String openWeatherApiKey, Integer updateFrequencyMinutes) {
-        this.openWeatherApiKey = openWeatherApiKey;
-        this.updateFrequencyMinutes = updateFrequencyMinutes;
-    }
-
-    public void startWeatherUpdate(String openWeatherApiKey, Integer updateFrequencyMinutes) {
-        updateConfiguration(openWeatherApiKey, updateFrequencyMinutes);
+    public void startWeatherUpdate() {
         weatherUpdateHandler.removeCallbacks(updateWeatherRunnable);
         weatherUpdateHandler.post(updateWeatherRunnable);
     }
@@ -53,16 +45,19 @@ public class WeatherUpdateService {
 
         @Override
         public void run() {
+            WeatherUpdateContext weatherUpdateContext = view.getWeatherUpdateContext();
             try {
-                getWeather();
+                getWeather(weatherUpdateContext);
             } catch (Exception ex) {
                 LOGGER.log(Level.ALL, ex.getMessage(), ex);
             } finally {
+                int updateFrequencyMinutes = weatherUpdateContext.getUpdateFrequencyMinutes();
                 weatherUpdateHandler.postDelayed(this, updateFrequencyMinutes*60*1000);
             }
         }
 
-        private void getWeather() {
+        private void getWeather(WeatherUpdateContext weatherUpdateContext) {
+            String openWeatherApiKey = weatherUpdateContext.getOpenWeatherApiKey();
             LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
             if (!openWeatherApiKey.trim().isEmpty()) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

@@ -17,6 +17,7 @@ import com.a3dx2.clock.R;
 import com.a3dx2.clock.service.ScrollingForecastUIService;
 import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
+import com.a3dx2.clock.service.model.WeatherUpdateContext;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
 import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
 import com.a3dx2.clock.service.openweathermap.model.SingleDayResult;
@@ -37,6 +38,7 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
 
     private ScrollingForecastUIService scrollingForecastUIService;
     private WeatherUpdateService weatherUpdateService;
+    private WeatherUpdateContext weatherUpdateContext;
 
     private FiveDayResult weatherForecast;
 
@@ -105,8 +107,10 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         this.scrollingForecastUIService = new ScrollingForecastUIService(scrollingView, orientation);
         weatherStatuses.setOrientation(orientation);
         this.timeInterval = attributes.getInt(R.styleable.WeatherForecastView_timeInterval, 1);
+        int updateFrequencyMinutes = attributes.getInt(R.styleable.WeatherForecastView_updateFrequencyMinutes, 30);
         if (openWeatherMapApiKey != null && !openWeatherMapApiKey.trim().isEmpty()) {
-            weatherUpdateService.startWeatherUpdate(openWeatherMapApiKey, this.timeInterval);
+            weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
+            weatherUpdateService.startWeatherUpdate();
         }
         buildLastUpdatedTime();
         buildForecast();
@@ -197,7 +201,8 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         if (openWeatherMapApiKey == null || openWeatherMapApiKey.trim().isEmpty()) {
             return;
         }
-        weatherUpdateService.startWeatherUpdate(openWeatherMapApiKey, updateFrequencyMinutes);
+        weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
+        weatherUpdateService.startWeatherUpdate();
     }
 
     public void stopWeatherDataUpdate() {
@@ -240,6 +245,15 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
             }
         };
         updateWeatherDayViews.updateAll();
+    }
+
+    public FiveDayResult getWeatherForecast() {
+        return weatherForecast;
+    }
+
+    @Override
+    public WeatherUpdateContext getWeatherUpdateContext() {
+        return weatherUpdateContext;
     }
 
     @Override

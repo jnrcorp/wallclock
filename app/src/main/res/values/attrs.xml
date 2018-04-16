@@ -4,6 +4,7 @@
     <attr name="iconSizeMultiplier" format="integer" />
     <attr name="temperatureTextSize" format="dimension" />
     <attr name="dayOfWeekTextSize" format="dimension" />
+    <attr name="updateFrequencyMinutes" format="integer" />
 
     <attr name="openWeatherMapApiKey" format="string" />
     <attr name="timeInterval" format="enum">
@@ -37,7 +38,7 @@
         <attr name="iconSizeMultiplier" />
         <attr name="temperatureTextSize" />
         <attr name="openWeatherMapApiKey" />
-        <attr name="timeInterval" />
+        <attr name="updateFrequencyMinutes" />
     </declare-styleable>
     
     <declare-styleable name="WeatherForecastView">
@@ -46,6 +47,7 @@
             <enum name="vertical" value="1" />
         </attr>
         <attr name="openWeatherMapApiKey" />
+        <attr name="updateFrequencyMinutes" />
         <attr name="timeInterval" />
         <attr name="textColor" />
         <attr name="iconSizeMultiplier" />
