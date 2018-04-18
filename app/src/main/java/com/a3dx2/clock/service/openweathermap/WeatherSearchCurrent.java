@@ -5,21 +5,18 @@ import android.location.Location;
 import com.a3dx2.clock.service.WebServiceCaller;
 import com.a3dx2.clock.service.WebServiceResultHandler;
 import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
-import com.a3dx2.clock.view.WeatherCurrentView;
+import com.a3dx2.clock.view.WeatherServiceAwareView;
 
 import java.util.Locale;
-import java.util.logging.Logger;
 
 public class WeatherSearchCurrent implements WebServiceWrapper {
 
-    private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
-
     private static final String WEATHER_MAP_SEARCH_CURRENT_URL = "https://api.openweathermap.org/data/2.5/weather?APPID=%s&lat=%f&lon=%f&units=imperial";
 
-    private final WeatherCurrentView view;
+    private final WeatherServiceAwareView<CurrentLocationResult> view;
     private final WeatherSearchCurrentResultHandler handler;
 
-    public WeatherSearchCurrent(WeatherCurrentView view) {
+    public WeatherSearchCurrent(WeatherServiceAwareView<CurrentLocationResult> view) {
         this.view = view;
         this.handler = new WeatherSearchCurrentResultHandler();
     }
@@ -30,7 +27,7 @@ public class WeatherSearchCurrent implements WebServiceWrapper {
         double latitude = location.getLatitude();
         String url = String.format(Locale.US, WEATHER_MAP_SEARCH_CURRENT_URL, openWeatherMapApiKey, latitude, longitude);
         WebServiceCaller<CurrentLocationResult> webServiceCaller = new WebServiceCaller<>(url, CurrentLocationResult.class, handler);
-        Void[] theVoid = null;
+        Void theVoid = null;
         webServiceCaller.execute(theVoid);
     }
 
@@ -38,7 +35,7 @@ public class WeatherSearchCurrent implements WebServiceWrapper {
         @Override
         public void handleResult(CurrentLocationResult result) {
             if (result != null) {
-                view.createLayoutWithData(result);
+                view.processWeatherResult(result);
             }
         }
     }

@@ -15,9 +15,7 @@ import android.widget.TextView;
 
 import com.a3dx2.clock.R;
 import com.a3dx2.clock.service.ScrollingForecastUIService;
-import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
-import com.a3dx2.clock.service.model.WeatherUpdateContext;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
 import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
 import com.a3dx2.clock.service.openweathermap.model.SingleDayResult;
@@ -29,7 +27,7 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WeatherForecastView extends FrameLayout implements WebServiceAwareView {
+public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> {
 
     private static final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
@@ -37,10 +35,6 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
     private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("E h a", Locale.US);
 
     private ScrollingForecastUIService scrollingForecastUIService;
-    private WeatherUpdateService weatherUpdateService;
-    private WeatherUpdateContext weatherUpdateContext;
-
-    private FiveDayResult weatherForecast;
 
     private LinearLayout weatherStatuses;
 
@@ -96,22 +90,19 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         this.weatherStatuses = findViewById(R.id.weather_statuses);
         this.lastUpdatedTime = new TextView(context);
         this.forecast = new TextView(context);
-        this.weatherUpdateService = new WeatherUpdateService(context, this, new WeatherSearchFiveDay(this));
         TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeatherForecastView, 0, 0);
         this.textColor = attributes.getColor(R.styleable.WeatherForecastView_textColor, Color.WHITE);
         this.temperatureTextSize = attributes.getDimension(R.styleable.WeatherForecastView_temperatureTextSize, 30);
         this.dayOfWeekTextSize = attributes.getDimension(R.styleable.WeatherForecastView_dayOfWeekTextSize, 20);
         this.iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherForecastView_iconSizeMultiplier, 3);
-        String openWeatherMapApiKey = attributes.getString(R.styleable.WeatherForecastView_openWeatherMapApiKey);
         this.orientation = attributes.getInt(R.styleable.WeatherForecastView_scrollOrientation, LinearLayout.VERTICAL);
         this.scrollingForecastUIService = new ScrollingForecastUIService(scrollingView, orientation);
         weatherStatuses.setOrientation(orientation);
         this.timeInterval = attributes.getInt(R.styleable.WeatherForecastView_timeInterval, 1);
+        createWeatherUpdateService(context, new WeatherSearchFiveDay(this));
+        String openWeatherMapApiKey = attributes.getString(R.styleable.WeatherForecastView_openWeatherMapApiKey);
         int updateFrequencyMinutes = attributes.getInt(R.styleable.WeatherForecastView_updateFrequencyMinutes, 30);
-        if (openWeatherMapApiKey != null && !openWeatherMapApiKey.trim().isEmpty()) {
-            weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
-            weatherUpdateService.startWeatherUpdate();
-        }
+        initializeWeatherData(openWeatherMapApiKey, updateFrequencyMinutes);
         buildLastUpdatedTime();
         buildForecast();
     }
@@ -147,8 +138,8 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         forecast.setTextSize(TypedValue.COMPLEX_UNIT_SP, dayOfWeekTextSize);
     }
 
-    public void createLayoutWithData(FiveDayResult result) {
-        this.weatherForecast = result;
+    @Override
+    protected void displayWeatherResult(FiveDayResult result) {
         Resources res = getResources();
         int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
         forecast.setText(getContext().getString(R.string.five_day_forecast, result.getCity().getName()));
@@ -197,18 +188,6 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         scrollingForecastUIService.activateScroll();
     }
 
-    public void initializeWeatherData(String openWeatherMapApiKey, Integer updateFrequencyMinutes) {
-        if (openWeatherMapApiKey == null || openWeatherMapApiKey.trim().isEmpty()) {
-            return;
-        }
-        weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
-        weatherUpdateService.startWeatherUpdate();
-    }
-
-    public void stopWeatherDataUpdate() {
-        weatherUpdateService.stopWeatherUpdate();
-    }
-
     public void updateConfiguration(ClockSettings clockSettings) {
         // Integer timeInterval, int textColor, float temperatureTextSize, float dayOfWeekTextSize, float iconSizeMultiplier
         this.timeInterval = clockSettings.getWeatherTimeInterval();
@@ -218,6 +197,7 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
         this.iconSizeMultiplier = clockSettings.getIconSizeMultiplier().floatValue();
         updateDisplayTimeInterval();
         updateUI();
+        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
     }
 
     private void updateDisplayTimeInterval() {
@@ -245,15 +225,6 @@ public class WeatherForecastView extends FrameLayout implements WebServiceAwareV
             }
         };
         updateWeatherDayViews.updateAll();
-    }
-
-    public FiveDayResult getWeatherForecast() {
-        return weatherForecast;
-    }
-
-    @Override
-    public WeatherUpdateContext getWeatherUpdateContext() {
-        return weatherUpdateContext;
     }
 
     @Override

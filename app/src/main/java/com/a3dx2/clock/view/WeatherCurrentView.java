@@ -7,14 +7,11 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
-import com.a3dx2.clock.service.WeatherUpdateService;
 import com.a3dx2.clock.service.model.ClockSettings;
-import com.a3dx2.clock.service.model.WeatherUpdateContext;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
 import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
 import com.a3dx2.clock.service.openweathermap.model.Weather;
@@ -26,16 +23,11 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WeatherCurrentView extends FrameLayout implements WebServiceAwareView {
+public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationResult> {
 
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
     private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
-
-    private WeatherUpdateService weatherUpdateService;
-    private WeatherUpdateContext weatherUpdateContext;
-
-    private CurrentLocationResult weatherCurrent;
 
     private TextView currentWeatherTemperature;
     private ImageView currentWeatherImage;
@@ -87,20 +79,17 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
         this.currentWeatherTemperature = findViewById(R.id.current_weather_temp);
         this.currentWeatherImage = findViewById(R.id.current_weather_image);
         this.currentWeatherDetails = findViewById(R.id.current_weather_details);
-        this.weatherUpdateService = new WeatherUpdateService(context, this, new WeatherSearchCurrent(this));
         this.textColor = attributes.getColor(R.styleable.WeatherCurrentView_textColor, Color.WHITE);
         this.iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherCurrentView_iconSizeMultiplier, 3);
         this.temperatureTextSize = attributes.getDimension(R.styleable.WeatherCurrentView_temperatureTextSize, 30);
+        createWeatherUpdateService(context, new WeatherSearchCurrent(this));
         String openWeatherMapApiKey = attributes.getString(R.styleable.WeatherCurrentView_openWeatherMapApiKey);
         int updateFrequencyMinutes = attributes.getInt(R.styleable.WeatherForecastView_updateFrequencyMinutes, 30);
-        if (openWeatherMapApiKey != null && !openWeatherMapApiKey.trim().isEmpty()) {
-            weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
-            weatherUpdateService.startWeatherUpdate();
-        }
+        initializeWeatherData(openWeatherMapApiKey, updateFrequencyMinutes);
     }
 
-    public void createLayoutWithData(CurrentLocationResult result) {
-        this.weatherCurrent = result;
+    @Override
+    protected void displayWeatherResult(CurrentLocationResult result) {
         LOGGER.log(Level.INFO, "currentConditions=" + result.toString());
         Weather weather = result.getWeather()[0];
         String weatherIconId = "@drawable/weather" + weather.getIcon();
@@ -113,18 +102,6 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
         currentWeatherDetails.setText(details);
     }
 
-    public void initializeWeatherData(String openWeatherMapApiKey, Integer updateFrequencyMinutes) {
-        if (openWeatherMapApiKey == null || openWeatherMapApiKey.trim().isEmpty()) {
-            return;
-        }
-        weatherUpdateContext = new WeatherUpdateContext(openWeatherMapApiKey, updateFrequencyMinutes);
-        weatherUpdateService.startWeatherUpdate();
-    }
-
-    public void stopWeatherDataUpdate() {
-        weatherUpdateService.stopWeatherUpdate();
-    }
-
     public void updateConfiguration(ClockSettings clockSettings) {
         // Integer timeInterval, int teUxtColor, float temperatureTextSize, float iconSizeMultiplier
         this.textColor = clockSettings.getTextColor();
@@ -134,15 +111,7 @@ public class WeatherCurrentView extends FrameLayout implements WebServiceAwareVi
         currentWeatherDetails.setTextColor(textColor);
         currentWeatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, temperatureTextSize);
         WeatherUtil.resizeIcon(currentWeatherImage, iconSizeMultiplier);
-    }
-
-    public CurrentLocationResult getWeatherCurrent() {
-        return weatherCurrent;
-    }
-
-    @Override
-    public WeatherUpdateContext getWeatherUpdateContext() {
-        return weatherUpdateContext;
+        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
     }
 
     @Override

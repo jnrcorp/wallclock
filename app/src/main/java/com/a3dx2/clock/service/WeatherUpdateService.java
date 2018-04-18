@@ -10,7 +10,7 @@ import android.support.v4.app.ActivityCompat;
 
 import com.a3dx2.clock.service.model.WeatherUpdateContext;
 import com.a3dx2.clock.service.openweathermap.WebServiceWrapper;
-import com.a3dx2.clock.view.WebServiceAwareView;
+import com.a3dx2.clock.view.WeatherServiceAwareView;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,10 +23,10 @@ public class WeatherUpdateService {
     private final UpdateWeatherRunnable updateWeatherRunnable = new UpdateWeatherRunnable();
 
     private final Context context;
-    private final WebServiceAwareView view;
+    private final WeatherServiceAwareView view;
     private final WebServiceWrapper wrapper;
 
-    public WeatherUpdateService(Context context, WebServiceAwareView view, WebServiceWrapper wrapper) {
+    public WeatherUpdateService(Context context, WeatherServiceAwareView view, WebServiceWrapper wrapper) {
         this.context = context;
         this.view = view;
         this.wrapper = wrapper;
@@ -63,9 +63,9 @@ public class WeatherUpdateService {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                assert lm != null;
-                Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                assert locationManager != null;
+                Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (location != null) {
                     wrapper.execute(location, openWeatherApiKey);
                 } else {

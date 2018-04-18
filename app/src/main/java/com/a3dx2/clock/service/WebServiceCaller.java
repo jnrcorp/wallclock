@@ -27,8 +27,7 @@ public class WebServiceCaller<K> extends AsyncTask<Void, Void, K> {
         try {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-            K result = restTemplate.getForObject(url, resultClass);
-            return result;
+            return restTemplate.getForObject(url, resultClass);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return null;

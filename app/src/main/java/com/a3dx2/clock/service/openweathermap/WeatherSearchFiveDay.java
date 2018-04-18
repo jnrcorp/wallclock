@@ -5,21 +5,18 @@ import android.location.Location;
 import com.a3dx2.clock.service.WebServiceCaller;
 import com.a3dx2.clock.service.WebServiceResultHandler;
 import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
-import com.a3dx2.clock.view.WeatherForecastView;
+import com.a3dx2.clock.view.WeatherServiceAwareView;
 
 import java.util.Locale;
-import java.util.logging.Logger;
 
 public class WeatherSearchFiveDay implements WebServiceWrapper {
 
-    private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
-
     private static final String WEATHER_MAP_SEARCH_FIVE_DAY_URL = "https://api.openweathermap.org/data/2.5/forecast?APPID=%s&lat=%f&lon=%f&units=imperial";
 
-    private final WeatherForecastView view;
+    private final WeatherServiceAwareView<FiveDayResult> view;
     private final WeatherSearchFiveDayResultHandler handler;
 
-    public WeatherSearchFiveDay(WeatherForecastView view) {
+    public WeatherSearchFiveDay(WeatherServiceAwareView<FiveDayResult> view) {
         this.view = view;
         this.handler = new WeatherSearchFiveDayResultHandler();
     }
@@ -38,7 +35,7 @@ public class WeatherSearchFiveDay implements WebServiceWrapper {
         @Override
         public void handleResult(FiveDayResult result) {
             if (result != null) {
-                view.createLayoutWithData(result);
+                view.processWeatherResult(result);
             }
         }
     }
