@@ -47,6 +47,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
     private float dayOfWeekTextSize;
     private float iconSizeMultiplier;
     private int timeInterval;
+    private int forecastDays;
 
     public WeatherForecastView(Context context) {
         super(context);
@@ -99,6 +100,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         this.scrollingForecastUIService = new ScrollingForecastUIService(scrollingView, orientation);
         weatherStatuses.setOrientation(orientation);
         this.timeInterval = attributes.getInt(R.styleable.WeatherForecastView_timeInterval, 1);
+        this.forecastDays = attributes.getInt(R.styleable.WeatherForecastView_forecastDays, 5);
         createWeatherUpdateService(context, new WeatherSearchFiveDay(this));
         String openWeatherMapApiKey = attributes.getString(R.styleable.WeatherForecastView_openWeatherMapApiKey);
         int updateFrequencyMinutes = attributes.getInt(R.styleable.WeatherForecastView_updateFrequencyMinutes, 30);
@@ -146,6 +148,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         weatherStatuses.removeAllViews();
         weatherStatuses.addView(forecast);
         int counter = 0;
+        int maxCounter = getForecastDaysMaxCounter();
         LOGGER.log(Level.INFO, "weatherData=" + result.toString());
         for (SingleDayResult singleDay : result.getList()) {
             if (singleDay.getWeather().length == 0) {
@@ -175,7 +178,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
             Date forecastDate = new Date(singleDay.getDt()*1000);
             weatherDayView.setDayOfWeek(DAY_OF_WEEK_HOUR_FORMAT.format(forecastDate));
             weatherStatuses.addView(weatherDayView);
-            if (counter % timeInterval != 0) {
+            if (counter % timeInterval != 0 || counter > maxCounter) {
                 weatherDayView.setVisibility(WeatherDayView.GONE);
             }
             counter += 1;
@@ -188,9 +191,14 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         scrollingForecastUIService.activateScroll();
     }
 
+    public int getForecastDaysMaxCounter() {
+        return forecastDays * 8;
+    }
+
     public void updateConfiguration(ClockSettings clockSettings) {
         // Integer timeInterval, int textColor, float temperatureTextSize, float dayOfWeekTextSize, float iconSizeMultiplier
         this.timeInterval = clockSettings.getWeatherTimeInterval();
+        this.forecastDays = clockSettings.getWeatherForecastDays();
         this.textColor = clockSettings.getTextColor();
         this.temperatureTextSize = clockSettings.getFontSizeWeatherTemp();
         this.dayOfWeekTextSize = clockSettings.getFontSizeWeatherTime();
@@ -204,7 +212,8 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         UpdateWeatherDayViews updateWeatherDayViews = new UpdateWeatherDayViews() {
             @Override
             protected void updateEach(int index, WeatherDayView day) {
-                if (index % timeInterval != 0) {
+                int maxCounter = getForecastDaysMaxCounter();
+                if (index % timeInterval != 0 || index > maxCounter) {
                     day.setVisibility(View.GONE);
                 } else {
                     day.setVisibility(View.VISIBLE);

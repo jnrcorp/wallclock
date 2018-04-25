@@ -26,6 +26,7 @@
     <string name="pref_key_font_size_weather_time">FONT_SIZE_WEATHER_TIME</string>
     <string name="pref_key_icon_size">ICON_SIZE_WEATHER</string>
     <string name="pref_key_weather_time_interval">TIME_INTERVAL_WEATHER</string>
+    <string name="pref_key_forecast_days">FORECAST_DAYS</string>
     <string name="pref_key_manage_brightness">MANAGE_BRIGHTNESS</string>
 
     <string name="pref_background_color">Background Color</string>
@@ -49,6 +50,8 @@
     <string name="pref_manage_brightness">Brightness with Sunrise/Sunset</string>
     <string name="pref_manage_brightness_description">Must have device in manual brightness mode</string>
     <string name="default_manage_brightness">true</string>
+    <string name="pref_forecast_days"># of days in forecast (max 5)</string>
+    <string name="default_forecast_days">5</string>
 
     <string-array name="pref_font_size_values">
         <item>10</item>
@@ -110,6 +113,15 @@
         <item>4</item>
         <item>8</item>
     </string-array>
+
+    <string-array name="pref_forecast_days_valuess">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string name="pref_forecast_days_description">The number of days in the forecast you want to display.</string>
 
     <string-array name="pref_manage_brightness_display">
         <item>Yes</item>

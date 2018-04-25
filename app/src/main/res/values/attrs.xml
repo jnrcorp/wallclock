@@ -7,12 +7,6 @@
     <attr name="updateFrequencyMinutes" format="integer" />
 
     <attr name="openWeatherMapApiKey" format="string" />
-    <attr name="timeInterval" format="enum">
-        <enum name="every3hours" value="1" />
-        <enum name="every6hours" value="2" />
-        <enum name="every12hours" value="4" />
-        <enum name="every24hours" value="8" />
-    </attr>
 
     <!-- Declare custom theme attributes that allow changing which styles are
          used for button bars depending on the API level.
@@ -48,11 +42,17 @@
         </attr>
         <attr name="openWeatherMapApiKey" />
         <attr name="updateFrequencyMinutes" />
-        <attr name="timeInterval" />
+        <attr name="timeInterval" format="enum">
+            <enum name="every3hours" value="1" />
+            <enum name="every6hours" value="2" />
+            <enum name="every12hours" value="4" />
+            <enum name="every24hours" value="8" />
+        </attr>
         <attr name="textColor" />
         <attr name="iconSizeMultiplier" />
         <attr name="temperatureTextSize" />
         <attr name="dayOfWeekTextSize" />
+        <attr name="forecastDays" format="integer" />
     </declare-styleable>
 
 </resources>

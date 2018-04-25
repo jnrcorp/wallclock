@@ -79,6 +79,16 @@
         android:title="@string/pref_time_interval_weather" />
 
     <ListPreference
+        android:defaultValue="@string/default_forecast_days"
+        android:entries="@array/pref_forecast_days_valuess"
+        android:entryValues="@array/pref_forecast_days_valuess"
+        android:key="@string/pref_key_forecast_days"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_forecast_days"
+        android:summary="@string/pref_forecast_days_description"/>
+
+    <ListPreference
         android:defaultValue="@string/default_manage_brightness"
         android:entries="@array/pref_manage_brightness_display"
         android:entryValues="@array/pref_manage_brightness_values"

@@ -19,6 +19,7 @@ public class ClockSettings {
     private final Integer fontSizeWeatherTime;
     private final Double iconSizeMultiplier;
     private final Integer weatherTimeInterval;
+    private final Integer weatherForecastDays;
     private final boolean manageBrightness;
 
     public ClockSettings(Context context) {
@@ -42,6 +43,8 @@ public class ClockSettings {
         this.iconSizeMultiplier = Double.valueOf(iconSizePref);
         String timeIntervalPref = preferences.getString(context.getString(R.string.pref_key_weather_time_interval), context.getString(R.string.default_time_interval_weather));
         this.weatherTimeInterval = Integer.valueOf(timeIntervalPref);
+        String forecastDaysPref = preferences.getString(context.getString(R.string.pref_key_forecast_days), "5");
+        this.weatherForecastDays = Integer.valueOf(forecastDaysPref);
         String manageBrightnessPref = preferences.getString(context.getString(R.string.pref_key_manage_brightness), "true");
         this.manageBrightness = Boolean.valueOf(manageBrightnessPref);
     }
@@ -80,6 +83,10 @@ public class ClockSettings {
 
     public Double getIconSizeMultiplier() {
         return iconSizeMultiplier;
+    }
+
+    public Integer getWeatherForecastDays() {
+        return weatherForecastDays;
     }
 
     public Integer getWeatherTimeInterval() {
