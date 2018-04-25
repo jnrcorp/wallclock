@@ -48,6 +48,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
     private float iconSizeMultiplier;
     private int timeInterval;
     private int forecastDays;
+    private String city;
 
     public WeatherForecastView(Context context) {
         super(context);
@@ -140,11 +141,16 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         forecast.setTextSize(TypedValue.COMPLEX_UNIT_SP, dayOfWeekTextSize);
     }
 
+    private void updateForecastText() {
+        forecast.setText(getContext().getString(R.string.five_day_forecast, String.valueOf(forecastDays), city));
+    }
+
     @Override
     protected void displayWeatherResult(FiveDayResult result) {
         Resources res = getResources();
         int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
-        forecast.setText(getContext().getString(R.string.five_day_forecast, result.getCity().getName()));
+        this.city = result.getCity().getName();
+        updateForecastText();
         weatherStatuses.removeAllViews();
         weatherStatuses.addView(forecast);
         int counter = 0;
@@ -205,6 +211,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         this.iconSizeMultiplier = clockSettings.getIconSizeMultiplier().floatValue();
         updateDisplayTimeInterval();
         updateUI();
+        updateForecastText();
         initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
     }
 
