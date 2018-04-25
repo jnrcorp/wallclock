@@ -142,7 +142,11 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
     }
 
     private void updateForecastText() {
-        forecast.setText(getContext().getString(R.string.five_day_forecast, String.valueOf(forecastDays), city));
+        if (forecastDays <= 3) {
+            forecast.setText(getContext().getString(R.string.x_hour_forecast, String.valueOf(forecastDays*24), city));
+        } else {
+            forecast.setText(getContext().getString(R.string.x_day_forecast, String.valueOf(forecastDays), city));
+        }
     }
 
     @Override

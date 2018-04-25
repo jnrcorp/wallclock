@@ -4,7 +4,8 @@
     <string name="settings_button">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="five_day_forecast">%s Day\nForecast for\n%s</string>
+    <string name="x_hour_forecast">%s Hour\nForecast for\n%s</string>
+    <string name="x_day_forecast">%s Day\nForecast for\n%s</string>
     <string name="no_geo">No Geo</string>
     <string name="no_key">No Key</string>
     <string name="last_updated">Updated\n%s</string>
