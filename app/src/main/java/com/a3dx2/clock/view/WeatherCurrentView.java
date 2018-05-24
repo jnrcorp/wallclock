@@ -62,7 +62,7 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         super.onAttachedToWindow();
         ClockSettings clockSettings = new ClockSettings(getContext());
         updateConfiguration(clockSettings);
-        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateCurrentFrequencyMinutes());
     }
 
     @Override
@@ -116,7 +116,7 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         currentWeatherDetails.setTextColor(textColor);
         currentWeatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, temperatureTextSize);
         WeatherUtil.resizeIcon(currentWeatherImage, iconSizeMultiplier);
-        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateCurrentFrequencyMinutes());
     }
 
     @Override

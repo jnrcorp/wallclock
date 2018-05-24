@@ -7,9 +7,21 @@
         android:defaultValue="30"
         android:entries="@array/pref_weather_update_frequency_values"
         android:entryValues="@array/pref_weather_update_frequency_values"
-        android:key="sync_frequency"
+        android:key="@string/pref_key_update_forecast_frequency"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:title="@string/pref_weather_update_frequency" />
+        android:title="@string/pref_weather_update_forecast_frequency" />
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <ListPreference
+        android:defaultValue="30"
+        android:entries="@array/pref_weather_update_frequency_values"
+        android:entryValues="@array/pref_weather_update_frequency_values"
+        android:key="@string/pref_key_update_current_frequency"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_weather_update_current_frequency" />
 
 </PreferenceScreen>

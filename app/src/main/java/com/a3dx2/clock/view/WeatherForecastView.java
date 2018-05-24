@@ -75,7 +75,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         super.onAttachedToWindow();
         ClockSettings clockSettings = new ClockSettings(getContext());
         updateConfiguration(clockSettings);
-        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateForecastFrequencyMinutes());
     }
 
     @Override
@@ -216,7 +216,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         updateDisplayTimeInterval();
         updateUI();
         updateForecastText();
-        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+        initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateForecastFrequencyMinutes());
     }
 
     private void updateDisplayTimeInterval() {

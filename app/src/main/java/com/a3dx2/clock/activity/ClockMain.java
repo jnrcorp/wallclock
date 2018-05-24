@@ -2,6 +2,7 @@ package com.a3dx2.clock.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -137,8 +138,8 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMMISSIONS_LOCATION_REQUEST_ID);
         } else {
-            weatherForecastView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
-            weatherCurrentView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateFrequencyMinutes());
+            weatherForecastView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateForecastFrequencyMinutes());
+            weatherCurrentView.initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateCurrentFrequencyMinutes());
         }
     }
 
@@ -196,8 +197,8 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
-                    weatherForecastView.initializeWeatherData(openWeatherApiKey, clockSettings.getUpdateFrequencyMinutes());
-                    weatherCurrentView.initializeWeatherData(openWeatherApiKey, clockSettings.getUpdateFrequencyMinutes());
+                    weatherForecastView.initializeWeatherData(openWeatherApiKey, clockSettings.getUpdateForecastFrequencyMinutes());
+                    weatherCurrentView.initializeWeatherData(openWeatherApiKey, clockSettings.getUpdateCurrentFrequencyMinutes());
                 }
                 break;
             }
@@ -277,6 +278,11 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
             return new BrightnessContext(sunrise, sunset);
         }
         return null;
+    }
+
+    @Override
+    public Context getContext() {
+        return getApplicationContext();
     }
 
 }

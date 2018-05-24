@@ -21,7 +21,8 @@
     <string name="pref_key_background_color">BACKGROUND_COLOR</string>
     <string name="pref_key_text_color">TEXT_COLOR</string>
     <string name="pref_key_api_key">API_KEY</string>
-    <string name="pref_key_update_frequency">UPDATE_FREQUENCY</string>
+    <string name="pref_key_update_forecast_frequency">UPDATE_FORECAST_FREQUENCY</string>
+    <string name="pref_key_update_current_frequency">UPDATE_CURRENT_FREQUENCY</string>
     <string name="pref_key_font_size_time">FONT_SIZE_TIME</string>
     <string name="pref_key_font_size_date">FONT_SIZE_DATE</string>
     <string name="pref_key_font_size_weather_temp">FONT_SIZE_WEATHER_TEMP</string>
@@ -138,14 +139,18 @@
     <string name="pref_openweathermap_api_key">Open WeatherMap API Key</string>
     <string name="pref_openweathermap_api_key_description">You need an API Key from https://openweathermap.org. Please sign up for one and put it here to get weather.</string>
 
-    <string name="pref_weather_update_frequency">Weather Update Frequency (minutes)</string>
+    <string name="pref_weather_update_forecast_frequency">Weather Update Forecast Frequency (minutes)</string>
+    <string name="pref_weather_update_current_frequency">Weather Update Current Frequency (minutes)</string>
     <string name="loading">...</string>
     <string-array name="pref_weather_update_frequency_values">
+        <item>5</item>
+        <item>10</item>
         <item>15</item>
         <item>30</item>
         <item>60</item>
         <item>90</item>
         <item>180</item>
     </string-array>
+
 
 </resources>

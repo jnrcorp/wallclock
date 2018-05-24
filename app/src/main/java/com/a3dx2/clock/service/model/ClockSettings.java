@@ -12,7 +12,8 @@ public class ClockSettings {
     private final String openWeatherApiKey;
     private final Integer backgroundColor;
     private final Integer textColor;
-    private final Integer updateFrequencyMinutes;
+    private final Integer updateForecastFrequencyMinutes;
+    private final Integer updateCurrentFrequencyMinutes;
     private final Integer fontSizeClockTime;
     private final Integer fontSizeClockDate;
     private final Integer fontSizeWeatherTemp;
@@ -26,7 +27,8 @@ public class ClockSettings {
         super();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.openWeatherApiKey = preferences.getString(context.getString(R.string.pref_key_api_key), "");
-        this.updateFrequencyMinutes = preferences.getInt(context.getString(R.string.pref_key_update_frequency), 30);
+        this.updateForecastFrequencyMinutes = preferences.getInt(context.getString(R.string.pref_key_update_forecast_frequency), 30);
+        this.updateCurrentFrequencyMinutes = preferences.getInt(context.getString(R.string.pref_key_update_current_frequency), 30);
         Integer defaultBackgroundColor = Color.parseColor(context.getString(R.string.default_background_color));
         this.backgroundColor = preferences.getInt(context.getString(R.string.pref_key_background_color), defaultBackgroundColor);
         Integer defaultTextColor = Color.parseColor(context.getString(R.string.default_text_color));
@@ -61,8 +63,12 @@ public class ClockSettings {
         return textColor;
     }
 
-    public Integer getUpdateFrequencyMinutes() {
-        return updateFrequencyMinutes;
+    public Integer getUpdateForecastFrequencyMinutes() {
+        return updateForecastFrequencyMinutes;
+    }
+
+    public Integer getUpdateCurrentFrequencyMinutes() {
+        return updateCurrentFrequencyMinutes;
     }
 
     public Integer getFontSizeClockTime() {

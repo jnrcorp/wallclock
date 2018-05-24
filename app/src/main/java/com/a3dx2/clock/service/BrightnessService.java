@@ -1,5 +1,8 @@
 package com.a3dx2.clock.service;
 
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Handler;
 import android.provider.Settings;
 
@@ -36,7 +39,7 @@ public class BrightnessService {
                 if (brightnessContext != null) {
                     int brightnessMode = Settings.System.getInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
                     if (Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL == brightnessMode) {
-                        int brightnessLevel = isNight(brightnessContext) ? 0 : 255;
+                        int brightnessLevel = isNight(brightnessContext) || isOnBatteryPower() ? 0 : 255;
                         Settings.System.putInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
                     }
                 }
@@ -45,6 +48,15 @@ public class BrightnessService {
             } finally {
                 brightnessHandler.postDelayed(this, 5*60*1000);
             }
+        }
+
+        private boolean isOnBatteryPower() {
+            IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = activity.getContext().registerReceiver(null, ifilter);
+            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                    status == BatteryManager.BATTERY_STATUS_FULL;
+            return !isCharging;
         }
 
         private boolean isNight(BrightnessContext brightnessContext) {
