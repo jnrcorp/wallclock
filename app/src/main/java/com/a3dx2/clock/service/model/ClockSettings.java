@@ -27,8 +27,8 @@ public class ClockSettings {
         super();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.openWeatherApiKey = preferences.getString(context.getString(R.string.pref_key_api_key), "");
-        this.updateForecastFrequencyMinutes = preferences.getInt(context.getString(R.string.pref_key_update_forecast_frequency), 30);
-        this.updateCurrentFrequencyMinutes = preferences.getInt(context.getString(R.string.pref_key_update_current_frequency), 30);
+        this.updateForecastFrequencyMinutes = Integer.valueOf(preferences.getString(context.getString(R.string.pref_key_update_forecast_frequency), "30"));
+        this.updateCurrentFrequencyMinutes = Integer.valueOf(preferences.getString(context.getString(R.string.pref_key_update_current_frequency), "30"));
         Integer defaultBackgroundColor = Color.parseColor(context.getString(R.string.default_background_color));
         this.backgroundColor = preferences.getInt(context.getString(R.string.pref_key_background_color), defaultBackgroundColor);
         Integer defaultTextColor = Color.parseColor(context.getString(R.string.default_text_color));
