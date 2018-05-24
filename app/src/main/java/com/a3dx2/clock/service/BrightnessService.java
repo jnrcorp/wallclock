@@ -49,11 +49,11 @@ public class BrightnessService {
 
         private boolean isNight(BrightnessContext brightnessContext) {
             Date now = new Date();
-            Date sunrise = brightnessContext.getSunrise();
-            Date sunset = addMinutesToDate(brightnessContext.getSunset(), 30);
+            Date sunrise = addMinutesToDate(brightnessContext.getSunrise(), -90);
+            Date sunset = addMinutesToDate(brightnessContext.getSunset(), 90);
             if (now.compareTo(sunrise) >= 0 && now.compareTo(sunset) <= 0) {
                 return false;
-            } else if (now.compareTo(sunset) >= 0) {
+            } else if (now.compareTo(sunset) >= 0 || now.compareTo(sunrise) <= 0) {
                 return true;
             }
             LOGGER.log(Level.SEVERE, "Unhandled Sunrise/Sunset situation. now={}, sunrise={}, sunset={}", new Object[] { now, sunrise, sunset });

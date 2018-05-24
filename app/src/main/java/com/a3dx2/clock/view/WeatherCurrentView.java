@@ -99,7 +99,12 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         currentWeatherTemperature.setText(temperature);
         String lastUpdatedDate = HOUR_MINUTE_FORMAT.format(new Date());
         String details = getContext().getString(R.string.current_weather_details, result.getName(), lastUpdatedDate);
-        currentWeatherDetails.setText(details);
+        Long sunriseTime = Long.valueOf(result.getSys().getSunrise());
+        Long sunsetTime = Long.valueOf(result.getSys().getSunset());
+        Date sunrise = new Date(sunriseTime * 1000);
+        Date sunset = new Date(sunsetTime * 1000);
+        String sunriseDetails = getContext().getString(R.string.current_sunrise_details, sunrise, sunset);
+        currentWeatherDetails.setText(details + "\n" + sunriseDetails);
     }
 
     public void updateConfiguration(ClockSettings clockSettings) {
