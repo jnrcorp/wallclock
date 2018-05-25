@@ -5,6 +5,7 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Handler;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import com.a3dx2.clock.activity.BrightnessAwareActivity;
 import com.a3dx2.clock.service.model.BrightnessContext;
@@ -39,14 +40,16 @@ public class BrightnessService {
                 if (brightnessContext != null) {
                     int brightnessMode = Settings.System.getInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
                     if (Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL == brightnessMode) {
-                        int brightnessLevel = isNight(brightnessContext) || isOnBatteryPower() ? 0 : 255;
+                        boolean isNight = isNight(brightnessContext);
+                        boolean isOnBatteryPower = isOnBatteryPower();
+                        int brightnessLevel = isNight || isOnBatteryPower ? 0 : 255;
                         Settings.System.putInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
                     }
                 }
             } catch (Settings.SettingNotFoundException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot find screen brightness mode");
             } finally {
-                brightnessHandler.postDelayed(this, 5*60*1000);
+                brightnessHandler.postDelayed(this, 1*60*1000);
             }
         }
 
