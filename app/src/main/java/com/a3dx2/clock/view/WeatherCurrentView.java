@@ -28,10 +28,13 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
     private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
+    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("MM/dd/yyyy h:mm a", Locale.US);
 
     private TextView currentWeatherTemperature;
     private ImageView currentWeatherImage;
     private TextView currentWeatherDetails;
+    private TextView sunriseDetails;
+    private TextView sunsetDetails;
 
     private int textColor;
     private float temperatureTextSize;
@@ -79,6 +82,8 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         this.currentWeatherTemperature = findViewById(R.id.current_weather_temp);
         this.currentWeatherImage = findViewById(R.id.current_weather_image);
         this.currentWeatherDetails = findViewById(R.id.current_weather_details);
+        this.sunriseDetails = findViewById(R.id.sunrise_details);
+        this.sunsetDetails = findViewById(R.id.sunset_details);
         this.textColor = attributes.getColor(R.styleable.WeatherCurrentView_textColor, Color.WHITE);
         this.iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherCurrentView_iconSizeMultiplier, 3);
         this.temperatureTextSize = attributes.getDimension(R.styleable.WeatherCurrentView_temperatureTextSize, 30);
@@ -103,8 +108,13 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         Long sunsetTime = Long.valueOf(result.getSys().getSunset());
         Date sunrise = new Date(sunriseTime * 1000);
         Date sunset = new Date(sunsetTime * 1000);
-        String sunriseDetails = getContext().getString(R.string.current_sunrise_details, sunrise, sunset);
-        currentWeatherDetails.setText(details + "\n" + sunriseDetails);
+        String sunriseDisplayDate = DATE_TIME_FORMAT.format(sunrise);
+        String sunsetDisplayDate = DATE_TIME_FORMAT.format(sunset);
+        String currentSunriseDetails = getContext().getString(R.string.current_sunrise_details, sunriseDisplayDate);
+        String currentSunsetDetails = getContext().getString(R.string.current_sunset_details, sunsetDisplayDate);
+        currentWeatherDetails.setText(details);
+        sunriseDetails.setText(currentSunriseDetails);
+        sunsetDetails.setText(currentSunsetDetails);
     }
 
     public void updateConfiguration(ClockSettings clockSettings) {
