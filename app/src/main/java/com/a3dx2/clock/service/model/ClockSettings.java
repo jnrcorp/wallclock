@@ -29,9 +29,9 @@ public class ClockSettings {
         this.openWeatherApiKey = preferences.getString(context.getString(R.string.pref_key_api_key), "");
         this.updateForecastFrequencyMinutes = Integer.valueOf(preferences.getString(context.getString(R.string.pref_key_update_forecast_frequency), "30"));
         this.updateCurrentFrequencyMinutes = Integer.valueOf(preferences.getString(context.getString(R.string.pref_key_update_current_frequency), "30"));
-        Integer defaultBackgroundColor = Color.parseColor(context.getString(R.string.default_background_color));
+        Integer defaultBackgroundColor = Color.parseColor(context.getString(R.string.default_background_color_string));
         this.backgroundColor = preferences.getInt(context.getString(R.string.pref_key_background_color), defaultBackgroundColor);
-        Integer defaultTextColor = Color.parseColor(context.getString(R.string.default_text_color));
+        Integer defaultTextColor = Color.parseColor(context.getString(R.string.default_text_color_string));
         this.textColor = preferences.getInt(context.getString(R.string.pref_key_text_color), defaultTextColor);
         String fontSizeClockTimePref = preferences.getString(context.getString(R.string.pref_key_font_size_time), context.getString(R.string.default_font_size_clock_time));
         this.fontSizeClockTime = Integer.valueOf(fontSizeClockTimePref);

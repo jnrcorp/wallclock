@@ -10,7 +10,8 @@
     <string name="no_key">No Key</string>
     <string name="last_updated">Updated\n%s</string>
     <string name="current_weather_details">%s - Updated %s</string>
-    <string name="current_sunrise_details">Sunrise: %s - Sunset: %s</string>
+    <string name="current_sunrise_details">Sunrise: %s</string>
+    <string name="current_sunset_details">Sunset: %s</string>
 
     <!-- Strings related to Settings -->
 
@@ -34,10 +35,10 @@
 
     <string name="pref_background_color">Background Color</string>
     <string name="pref_background_color_description">Choose color of the background.</string>
-    <string name="default_background_color">#000000</string>
+    <string name="default_background_color_string">#000000</string>
     <string name="pref_text_color">Text Color</string>
     <string name="pref_text_color_description">Choose the color of all text.</string>
-    <string name="default_text_color">#33b5e5</string>
+    <string name="default_text_color_string">#33b5e5</string>
     <string name="pref_font_size_clock_time">Time Font Size (sp)</string>
     <string name="default_font_size_clock_time">160</string>
     <string name="pref_font_size_clock_date">Date Font Size (sp)</string>
