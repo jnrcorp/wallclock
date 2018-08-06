@@ -5,6 +5,7 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Handler;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import com.a3dx2.clock.activity.BrightnessAwareActivity;
 import com.a3dx2.clock.service.model.BrightnessContext;
@@ -44,6 +45,7 @@ public class BrightnessService {
                     if (Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL == brightnessMode) {
                         boolean isNight = isNight(brightnessContext);
                         boolean isOnBatteryPower = isOnBatteryPower();
+                        Toast.makeText(activity.getContext(), "Brightness Adjusted: isNight=" + isNight + "; isBattery=" + isOnBatteryPower, Toast.LENGTH_LONG);
                         int brightnessLevel = isNight || isOnBatteryPower ? 100 : 255;
                         Settings.System.putInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
                     }
