@@ -1,7 +1,10 @@
 package com.a3dx2.clock.service.openweathermap.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Sun {
 
     private String country;
