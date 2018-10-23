@@ -5,6 +5,7 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.a3dx2.clock.activity.BrightnessAwareActivity;
@@ -45,15 +46,17 @@ public class BrightnessService {
                     if (Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL == brightnessMode) {
                         boolean isNight = isNight(brightnessContext);
                         boolean isOnBatteryPower = isOnBatteryPower();
-                        Toast.makeText(activity.getContext(), "Brightness Adjusted: isNight=" + isNight + "; isBattery=" + isOnBatteryPower, Toast.LENGTH_LONG);
                         int brightnessLevel = isNight || isOnBatteryPower ? 100 : 255;
+                        LOGGER.log(Level.INFO, "Brightness Adjusted: isNight={}; isBattery={}, brightnessLevel={}", new Object[] { isNight, isOnBatteryPower, brightnessLevel });
                         Settings.System.putInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
                     }
                 }
             } catch (Settings.SettingNotFoundException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot find screen brightness mode");
             } finally {
-                brightnessHandler.postDelayed(this, 1*60*1000);
+                int millisecondDelay = 1*60*1000;
+                LOGGER.log(Level.INFO, "Running brightness leveling again in {} milliseconds.", millisecondDelay);
+                brightnessHandler.postDelayed(this, millisecondDelay);
             }
         }
 
@@ -71,6 +74,7 @@ public class BrightnessService {
             Date now = new Date();
             Date sunrise = addMinutesToDate(brightnessContext.getSunrise(), -90);
             Date sunset = addMinutesToDate(brightnessContext.getSunset(), 90);
+            LOGGER.log(Level.INFO, "isNight Data: now={}, sunrise={}, sunset={}", new Object[] { now, sunrise, sunset });
             if (isTomorrow(sunset)) {
                 sunset = addDays(sunset, -1);
             }
