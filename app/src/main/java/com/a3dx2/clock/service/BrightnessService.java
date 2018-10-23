@@ -50,6 +50,8 @@ public class BrightnessService {
                         LOGGER.log(Level.INFO, "Brightness Adjusted: isNight=" + isNight + "; isBattery=" + isOnBatteryPower + ", brightnessLevel=" + brightnessLevel);
                         Settings.System.putInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
                     }
+                } else {
+                    LOGGER.log(Level.INFO, "brightnessContext is null");
                 }
             } catch (Settings.SettingNotFoundException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot find screen brightness mode");
