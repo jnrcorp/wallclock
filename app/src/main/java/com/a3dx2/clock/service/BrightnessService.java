@@ -92,7 +92,10 @@ public class BrightnessService {
         }
 
         private boolean isSameDay(Date date) {
-            return DAY_FORMAT.format(date).equals(DAY_FORMAT.format(new Date()));
+            String dateDay = DAY_FORMAT.format(date);
+            String nowDay = DAY_FORMAT.format(new Date());
+            LOGGER.log(Level.INFO, "isSameDay Data: dateDay={}, nowDay={}", new Object[] { dateDay, nowDay });
+            return dateDay.equals(nowDay);
         }
 
         private Date addDays(Date date, int days) {
