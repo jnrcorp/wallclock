@@ -47,7 +47,7 @@ public class BrightnessService {
                         boolean isNight = isNight(brightnessContext);
                         boolean isOnBatteryPower = isOnBatteryPower();
                         int brightnessLevel = isNight || isOnBatteryPower ? 100 : 255;
-                        LOGGER.log(Level.INFO, "Brightness Adjusted: isNight={}; isBattery={}, brightnessLevel={}", new Object[] { isNight, isOnBatteryPower, brightnessLevel });
+                        LOGGER.log(Level.INFO, "Brightness Adjusted: isNight=" + isNight + "; isBattery=" + isOnBatteryPower + ", brightnessLevel=" + brightnessLevel);
                         Settings.System.putInt(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, brightnessLevel);
                     }
                 }
@@ -55,7 +55,7 @@ public class BrightnessService {
                 LOGGER.log(Level.SEVERE, "Cannot find screen brightness mode");
             } finally {
                 int millisecondDelay = 1*60*1000;
-                LOGGER.log(Level.INFO, "Running brightness leveling again in {} milliseconds.", millisecondDelay);
+                LOGGER.log(Level.INFO, "Running brightness leveling again in " + millisecondDelay + " milliseconds.");
                 brightnessHandler.postDelayed(this, millisecondDelay);
             }
         }
@@ -74,7 +74,7 @@ public class BrightnessService {
             Date now = new Date();
             Date sunrise = addMinutesToDate(brightnessContext.getSunrise(), -90);
             Date sunset = addMinutesToDate(brightnessContext.getSunset(), 90);
-            LOGGER.log(Level.INFO, "isNight Data: now={}, sunrise={}, sunset={}", new Object[] { now, sunrise, sunset });
+            LOGGER.log(Level.INFO, "isNight Data: now=" + now +", sunrise=" + sunrise + ", sunset=" + sunset);
             if (isTomorrow(sunset)) {
                 sunset = addDays(sunset, -1);
             }
@@ -83,7 +83,7 @@ public class BrightnessService {
             } else if (now.compareTo(sunset) >= 0 || now.compareTo(sunrise) <= 0) {
                 return true;
             }
-            LOGGER.log(Level.SEVERE, "Unhandled Sunrise/Sunset situation. now={}, sunrise={}, sunset={}", new Object[] { now, sunrise, sunset });
+            LOGGER.log(Level.SEVERE, "Unhandled Sunrise/Sunset situation. now=" + now + ", sunrise=" + sunrise + ", sunset=" + sunset);
             return sunset.compareTo(sunrise) > 0;
         }
 
@@ -94,7 +94,7 @@ public class BrightnessService {
         private boolean isSameDay(Date date) {
             String dateDay = DAY_FORMAT.format(date);
             String nowDay = DAY_FORMAT.format(new Date());
-            LOGGER.log(Level.INFO, "isSameDay Data: dateDay={}, nowDay={}", new Object[] { dateDay, nowDay });
+            LOGGER.log(Level.INFO, "isSameDay Data: dateDay=" + dateDay + ", nowDay=" + nowDay);
             return dateDay.equals(nowDay);
         }
 

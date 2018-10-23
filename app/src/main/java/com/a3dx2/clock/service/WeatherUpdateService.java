@@ -58,7 +58,7 @@ public class WeatherUpdateService {
 
         private void getWeather(WeatherUpdateContext weatherUpdateContext) {
             String openWeatherApiKey = weatherUpdateContext.getOpenWeatherApiKey();
-            LOGGER.log(Level.INFO, "About to load weather: apiKey={}", openWeatherApiKey);
+            LOGGER.log(Level.INFO, "About to load weather: apiKey=" + openWeatherApiKey);
             if (!openWeatherApiKey.trim().isEmpty()) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
