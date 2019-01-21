@@ -78,17 +78,24 @@ public class BrightnessService {
             Date now = new Date();
             Date sunrise = addMinutesToDate(brightnessContext.getSunrise(), -90);
             Date sunset = addMinutesToDate(brightnessContext.getSunset(), 90);
-            LOGGER.log(Level.INFO, "isNight Data: now=" + now +", sunrise=" + sunrise + ", sunset=" + sunset);
-            if (isTomorrow(sunset)) {
+            boolean isTomorrow = isTomorrow(sunset);
+            LOGGER.log(Level.INFO, "isNight Data: now=" + now +", sunrise=" + sunrise + ", sunset=" + sunset + "; isTomorrow=" + isTomorrow);
+            if (isTomorrow) {
                 sunset = addDays(sunset, -1);
             }
-            if (now.compareTo(sunrise) >= 0 && now.compareTo(sunset) <= 0) {
+            boolean nowAfterSunrise = now.compareTo(sunrise) >= 0;
+            boolean nowBeforeSunset = now.compareTo(sunset) <= 0;
+            boolean nowAfterSunset = now.compareTo(sunset) >= 0;
+            boolean nowBeforeSunrise = now.compareTo(sunrise) <= 0;
+            LOGGER.log(Level.INFO, "nowAfterSunrise=" + nowAfterSunrise + ", nowBeforeSunset=" + nowBeforeSunset + ", nowAfterSunset=" + nowAfterSunset + ", nowBeforeSunrise=" + nowBeforeSunrise);
+            if (nowAfterSunrise && nowBeforeSunset) {
                 return false;
-            } else if (now.compareTo(sunset) >= 0 || now.compareTo(sunrise) <= 0) {
+            } else if (nowAfterSunset || nowBeforeSunrise) {
                 return true;
             }
-            LOGGER.log(Level.SEVERE, "Unhandled Sunrise/Sunset situation. now=" + now + ", sunrise=" + sunrise + ", sunset=" + sunset);
-            return sunset.compareTo(sunrise) > 0;
+            boolean sunsetAfterSunrise = sunset.compareTo(sunrise) > 0;
+            LOGGER.log(Level.SEVERE, "Unhandled Sunrise/Sunset situation. now=" + now + ", sunrise=" + sunrise + ", sunset=" + sunset + ", sunsetAfterSunrise=" + sunsetAfterSunrise);
+            return sunsetAfterSunrise;
         }
 
         private boolean isTomorrow(Date date) {
@@ -98,8 +105,9 @@ public class BrightnessService {
         private boolean isSameDay(Date date) {
             String dateDay = DAY_FORMAT.format(date);
             String nowDay = DAY_FORMAT.format(new Date());
-            LOGGER.log(Level.INFO, "isSameDay Data: dateDay=" + dateDay + ", nowDay=" + nowDay);
-            return dateDay.equals(nowDay);
+            boolean isSameDay = dateDay.equals(nowDay);
+            LOGGER.log(Level.INFO, "isSameDay Data: dateDay=" + dateDay + ", nowDay=" + nowDay + ", isSameDay=" + isSameDay);
+            return isSameDay;
         }
 
         private Date addDays(Date date, int days) {
