@@ -46,7 +46,7 @@
                 android:textSize="30sp"
                 android:textColor="#33b5e5"
                 android:textStyle="bold"
-                android:format12Hour="EEEE, MMMM d"/>
+                android:format12Hour="EEE, MMM d"/>
 
             <com.a3dx2.clock.view.WeatherCurrentView
                 android:id="@+id/weather_current_view"
