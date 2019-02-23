@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.a3dx2.clock.R;
@@ -25,12 +26,16 @@ import com.a3dx2.clock.view.WeatherCurrentView;
 import com.a3dx2.clock.view.WeatherForecastView;
 
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 public class ClockMain extends AppCompatActivity implements BrightnessAwareActivity {
+
+    private static final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
     /**
      * Some older devices needs a small delay between UI widget updates
@@ -100,6 +105,11 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
         setContentView(R.layout.activity_clock_main);
 
         setKeyForDeveloper();
+
+        if (brightnessService != null) {
+            brightnessService.shutdown();
+        }
+
         clockSettings = new ClockSettings(this);
         clockUIService = new ClockUIService(this);
         currentWeatherUIService = new CurrentWeatherUIService(this);
@@ -275,6 +285,7 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
             Long sunsetTime = Long.valueOf(weatherCurrentView.getWeatherResult().getSys().getSunset());
             Date sunrise = new Date(sunriseTime * 1000);
             Date sunset = new Date(sunsetTime * 1000);
+            LOGGER.log(Level.INFO, "getBrightnessContext: sunrise=" + sunrise + "; sunset=" + sunset);
             return new BrightnessContext(sunrise, sunset);
         }
         return null;

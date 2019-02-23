@@ -35,6 +35,11 @@ public class BrightnessService {
             brightnessHandler.post(updateBrightness);
         }
     }
+
+    public void shutdown() {
+        brightnessHandler.removeCallbacks(updateBrightness);
+    }
+
     private final Handler brightnessHandler = new Handler();
     private final Runnable updateBrightness = new Runnable() {
         @Override
