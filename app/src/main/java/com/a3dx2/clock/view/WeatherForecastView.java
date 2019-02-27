@@ -96,7 +96,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         this.textColor = attributes.getColor(R.styleable.WeatherForecastView_textColor, Color.WHITE);
         this.temperatureTextSize = attributes.getDimension(R.styleable.WeatherForecastView_temperatureTextSize, 30);
         this.dayOfWeekTextSize = attributes.getDimension(R.styleable.WeatherForecastView_dayOfWeekTextSize, 20);
-        this.iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherForecastView_iconSizeMultiplier, 3);
+        this.iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherForecastView_iconSizeMultiplier, 5);
         this.orientation = attributes.getInt(R.styleable.WeatherForecastView_scrollOrientation, LinearLayout.VERTICAL);
         this.scrollingForecastUIService = new ScrollingForecastUIService(scrollingView, orientation);
         weatherStatuses.setOrientation(orientation);
@@ -165,7 +165,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
                 continue;
             }
             Weather weather = singleDay.getWeather()[0];
-            String weatherIconId = "@drawable/weather" + weather.getIcon();
+            String weatherIconId = "@drawable/ic_weather" + weather.getIcon();
             Integer drawableId = getResources().getIdentifier(weatherIconId, "drawable", getContext().getPackageName());
             WeatherDayView weatherDayView = new WeatherDayView(getContext());
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(

@@ -46,9 +46,9 @@ public class WeatherDayView extends LinearLayout {
     private void init(Context context, AttributeSet attrs, int defStyle) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.weather_day_view, this, true);
-        this.weatherIcon = (ImageView) findViewById(R.id.weather_image);
-        this.weatherTemperature = (TextView) findViewById(R.id.weather_temp);
-        this.weatherDay = (TextView) findViewById(R.id.weather_day_of_week);
+        this.weatherIcon = findViewById(R.id.weather_image);
+        this.weatherTemperature = findViewById(R.id.weather_temp);
+        this.weatherDay = findViewById(R.id.weather_day_of_week);
         TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeatherDayView, 0, 0);
         try {
             String temperature = attributes.getString(R.styleable.WeatherDayView_temperature);
@@ -61,8 +61,8 @@ public class WeatherDayView extends LinearLayout {
             setTemperatureTextSize(temperatureTextSize);
             float dayOfWeekTextSize = attributes.getDimension(R.styleable.WeatherDayView_dayOfWeekTextSize, 20);
             setDayOfWeekTextSize(dayOfWeekTextSize);
-            int weatherIcon = attributes.getInt(R.styleable.WeatherDayView_weatherIcon, R.drawable.weather01d);
-            float iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherDayView_iconSizeMultiplier, 3);
+            int weatherIcon = attributes.getInt(R.styleable.WeatherDayView_weatherIcon, R.drawable.ic_weather01d);
+            float iconSizeMultiplier = attributes.getFloat(R.styleable.WeatherDayView_iconSizeMultiplier, 5);
             setWeatherIcon(weatherIcon, iconSizeMultiplier);
         } finally {
             attributes.recycle();
@@ -70,8 +70,8 @@ public class WeatherDayView extends LinearLayout {
     }
 
     public void setWeatherIcon(int id, float iconSizeMultiplier) {
-        Drawable drawable = getContext().getDrawable(id);
-        WeatherUtil.resizeIcon(weatherIcon, drawable, iconSizeMultiplier);
+        weatherIcon.setImageResource(id);
+        setIconSizeMultiplier(iconSizeMultiplier);
     }
 
     public void setIconSizeMultiplier(float iconSizeMultiplier) {
@@ -93,6 +93,7 @@ public class WeatherDayView extends LinearLayout {
     public void setTextColor(int color) {
         weatherTemperature.setTextColor(color);
         weatherDay.setTextColor(color);
+        weatherIcon.setColorFilter(color);
     }
 
     public void setDayOfWeek(String dayOfWeek) {

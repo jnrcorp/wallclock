@@ -35,31 +35,77 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/current_weather_sunrise_image"
+                    android:src="@drawable/ic_sunrise"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/sunrise_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="#33b5e5"
+                    android:text="@string/loading"
+                    android:textSize="20sp"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:paddingLeft="30sp"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/current_weather_sunset_image"
+                    android:src="@drawable/ic_sunset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/sunset_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="#33b5e5"
+                    android:text="@string/loading"
+                    android:textSize="20sp"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_gravity="center"
             android:gravity="center">
-
-            <TextView
-                android:id="@+id/sunrise_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="#33b5e5"
-                android:text="@string/loading"
-                android:textSize="20sp"
-                android:gravity="center"/>
-
-            <TextView
-                android:id="@+id/sunset_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="#33b5e5"
-                android:text="@string/loading"
-                android:textSize="20sp"
-                android:gravity="center"/>
 
             <TextView
                 android:id="@+id/current_weather_details"

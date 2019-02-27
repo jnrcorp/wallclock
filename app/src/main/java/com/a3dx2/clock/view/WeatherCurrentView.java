@@ -28,12 +28,13 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
     private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
     private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
-    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("MM/dd/yyyy h:mm a", Locale.US);
 
     private TextView currentWeatherTemperature;
     private ImageView currentWeatherImage;
     private TextView currentWeatherDetails;
+    private ImageView sunriseImage;
     private TextView sunriseDetails;
+    private ImageView sunsetImage;
     private TextView sunsetDetails;
 
     private int textColor;
@@ -82,6 +83,8 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         this.currentWeatherTemperature = findViewById(R.id.current_weather_temp);
         this.currentWeatherImage = findViewById(R.id.current_weather_image);
         this.currentWeatherDetails = findViewById(R.id.current_weather_details);
+        this.sunriseImage = findViewById(R.id.current_weather_sunrise_image);
+        this.sunsetImage = findViewById(R.id.current_weather_sunset_image);
         this.sunriseDetails = findViewById(R.id.sunrise_details);
         this.sunsetDetails = findViewById(R.id.sunset_details);
         this.textColor = attributes.getColor(R.styleable.WeatherCurrentView_textColor, Color.WHITE);
@@ -97,9 +100,18 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
     protected void displayWeatherResult(CurrentLocationResult result) {
         LOGGER.log(Level.INFO, "currentConditions=" + result.toString());
         Weather weather = result.getWeather()[0];
-        String weatherIconId = "@drawable/weather" + weather.getIcon();
+        String weatherIconId = "@drawable/ic_weather" + weather.getIcon();
         Integer drawableId = getResources().getIdentifier(weatherIconId, "drawable", getContext().getPackageName());
         currentWeatherImage.setImageResource(drawableId);
+        sunriseImage.setColorFilter(textColor);
+        sunsetImage.setColorFilter(textColor);
+        Integer sunriseDrawableId = getResources().getIdentifier("@drawable/ic_sunrise", "drawable", getContext().getPackageName());
+        sunriseImage.setImageResource(sunriseDrawableId);
+        Integer sunsetDrawableId = getResources().getIdentifier("@drawable/ic_sunset", "drawable", getContext().getPackageName());
+        sunsetImage.setImageResource(sunsetDrawableId);
+        WeatherUtil.resizeIcon(sunriseImage, 3);
+        WeatherUtil.resizeIcon(sunsetImage, 3);
+        WeatherUtil.resizeIcon(currentWeatherImage, iconSizeMultiplier);
         String temperature = WeatherUtil.formatTemperature(result.getMain().getTemp());
         currentWeatherTemperature.setText(temperature);
         String lastUpdatedDate = HOUR_MINUTE_FORMAT.format(new Date());
@@ -108,13 +120,11 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         Long sunsetTime = Long.valueOf(result.getSys().getSunset());
         Date sunrise = new Date(sunriseTime * 1000);
         Date sunset = new Date(sunsetTime * 1000);
-        String sunriseDisplayDate = DATE_TIME_FORMAT.format(sunrise);
-        String sunsetDisplayDate = DATE_TIME_FORMAT.format(sunset);
-        String currentSunriseDetails = getContext().getString(R.string.current_sunrise_details, sunriseDisplayDate);
-        String currentSunsetDetails = getContext().getString(R.string.current_sunset_details, sunsetDisplayDate);
+        String sunriseDisplayDate = HOUR_MINUTE_FORMAT.format(sunrise);
+        String sunsetDisplayDate = HOUR_MINUTE_FORMAT.format(sunset);
         currentWeatherDetails.setText(details);
-        sunriseDetails.setText(currentSunriseDetails);
-        sunsetDetails.setText(currentSunsetDetails);
+        sunriseDetails.setText(sunriseDisplayDate);
+        sunsetDetails.setText(sunsetDisplayDate);
     }
 
     public void updateConfiguration(ClockSettings clockSettings) {
@@ -124,10 +134,13 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         this.iconSizeMultiplier = clockSettings.getIconSizeMultiplier().floatValue();
         currentWeatherTemperature.setTextColor(textColor);
         currentWeatherDetails.setTextColor(textColor);
+        currentWeatherImage.setColorFilter(textColor);
         sunriseDetails.setTextColor(textColor);
         sunsetDetails.setTextColor(textColor);
         currentWeatherTemperature.setTextSize(TypedValue.COMPLEX_UNIT_SP, temperatureTextSize);
         WeatherUtil.resizeIcon(currentWeatherImage, iconSizeMultiplier);
+        sunriseImage.setColorFilter(textColor);
+        sunsetImage.setColorFilter(textColor);
         initializeWeatherData(clockSettings.getOpenWeatherApiKey(), clockSettings.getUpdateCurrentFrequencyMinutes());
     }
 
