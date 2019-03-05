@@ -81,7 +81,7 @@ public class BrightnessService {
 
         private boolean isNight(BrightnessContext brightnessContext) {
             Date now = new Date();
-            Date sunrise = addMinutesToDate(brightnessContext.getSunrise(), -90);
+            Date sunrise = addMinutesToDate(brightnessContext.getSunrise(), 0);
             Date sunset = addMinutesToDate(brightnessContext.getSunset(), 90);
             boolean isTomorrow = isTomorrow(sunset);
             LOGGER.log(Level.INFO, "isNight Data: now=" + now +", sunrise=" + sunrise + ", sunset=" + sunset + "; isTomorrow=" + isTomorrow);
