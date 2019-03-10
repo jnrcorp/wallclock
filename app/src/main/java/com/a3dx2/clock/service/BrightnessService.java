@@ -33,6 +33,7 @@ public class BrightnessService {
     }
 
     public void startUpdateBrightness(boolean manageBrightness) {
+        LOGGER.log(Level.INFO, "Restarting BrightnessService created=" + created);
         brightnessHandler.removeCallbacks(updateBrightness);
         if (manageBrightness) {
             brightnessHandler.post(updateBrightness);
@@ -40,7 +41,9 @@ public class BrightnessService {
     }
 
     public void shutdown() {
+        LOGGER.log(Level.INFO, "Stop BrightnessService created=" + created);
         brightnessHandler.removeCallbacks(updateBrightness);
+        brightnessHandler.removeCallbacksAndMessages(null);
     }
 
     private final Handler brightnessHandler = new Handler();

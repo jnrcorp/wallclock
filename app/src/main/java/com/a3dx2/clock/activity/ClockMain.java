@@ -194,6 +194,13 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
         super.onPause();
     }
 
+    protected void onStop() {
+        super.onStop();
+        if (brightnessService != null && brightnessService.get() != null) {
+            brightnessService.get().shutdown();
+        }
+    }
+
     @SuppressLint("ApplySharedPref") // We need to ensure the key is set because the rest of the code relies on it being available.
     private void setKeyForDeveloper() {
         String openWeatherApiKey = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.pref_key_api_key), "");
