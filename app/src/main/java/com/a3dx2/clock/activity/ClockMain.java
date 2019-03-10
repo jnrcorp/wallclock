@@ -25,6 +25,7 @@ import com.a3dx2.clock.service.model.ClockSettings;
 import com.a3dx2.clock.view.WeatherCurrentView;
 import com.a3dx2.clock.view.WeatherForecastView;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -89,7 +90,7 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
     private ClockSettings clockSettings;
     private ClockUIService clockUIService;
     private CurrentWeatherUIService currentWeatherUIService;
-    private BrightnessService brightnessService;
+    private WeakReference<BrightnessService> brightnessService;
 
     private WeatherForecastView weatherForecastView;
     private WeatherCurrentView weatherCurrentView;
@@ -106,14 +107,14 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
 
         setKeyForDeveloper();
 
-        if (brightnessService != null) {
-            brightnessService.shutdown();
+        if (brightnessService != null && brightnessService.get() != null) {
+            brightnessService.get().shutdown();
         }
 
         clockSettings = new ClockSettings(this);
         clockUIService = new ClockUIService(this);
         currentWeatherUIService = new CurrentWeatherUIService(this);
-        brightnessService = new BrightnessService(this);
+        brightnessService = new WeakReference<>(new BrightnessService(this));
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -171,7 +172,9 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
     }
 
     public void restartBrightnessChecker() {
-        brightnessService.startUpdateBrightness(clockSettings.isManageBrightness());
+        if (brightnessService.get() != null) {
+            brightnessService.get().startUpdateBrightness(clockSettings.isManageBrightness());
+        }
     }
 
     public void setBackgroundColor() {
