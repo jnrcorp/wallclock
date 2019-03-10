@@ -41,7 +41,7 @@ public class BrightnessService {
     }
 
     public void shutdown() {
-        LOGGER.log(Level.INFO, "Stop BrightnessService created=" + created);
+        LOGGER.log(Level.INFO, "Stop BrightnessSexrvice created=" + created);
         brightnessHandler.removeCallbacks(updateBrightness);
         brightnessHandler.removeCallbacksAndMessages(null);
     }
