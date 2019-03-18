@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.listeners.WeatherForecastOnUpdateListener;
 import com.a3dx2.clock.service.ScrollingForecastUIService;
 import com.a3dx2.clock.service.model.ClockSettings;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchFiveDay;
@@ -31,7 +32,6 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
 
     private static final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
 
-    private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
     private static final SimpleDateFormat DAY_OF_WEEK_HOUR_FORMAT = new SimpleDateFormat("E h a", Locale.US);
 
     private ScrollingForecastUIService scrollingForecastUIService;
@@ -39,7 +39,6 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
     private LinearLayout weatherStatuses;
 
     private TextView forecast;
-    private TextView lastUpdatedTime;
 
     private int orientation;
     private int textColor;
@@ -49,6 +48,8 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
     private int timeInterval;
     private int forecastDays;
     private String city;
+
+    private WeatherForecastOnUpdateListener weatherForecastOnUpdateListener;
 
     public WeatherForecastView(Context context) {
         super(context);
@@ -90,7 +91,6 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
         inflater.inflate(R.layout.weather_forecast_view, this, true);
         FrameLayout scrollingView = findViewById(R.id.scrollingView);
         this.weatherStatuses = findViewById(R.id.weather_statuses);
-        this.lastUpdatedTime = new TextView(context);
         this.forecast = new TextView(context);
         TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeatherForecastView, 0, 0);
         this.textColor = attributes.getColor(R.styleable.WeatherForecastView_textColor, Color.WHITE);
@@ -115,9 +115,6 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         layoutParams.gravity = Gravity.CENTER;
-        lastUpdatedTime.setLayoutParams(layoutParams);
-        lastUpdatedTime.setGravity(Gravity.CENTER);
-        lastUpdatedTime.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
     }
 
     private void buildForecast() {
@@ -133,9 +130,6 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
     public void updateLastUpdatedTimeUI() {
         Resources res = getResources();
         int paddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, res.getDisplayMetrics());
-        lastUpdatedTime.setPadding(0, paddingTop, 0, paddingTop);
-        lastUpdatedTime.setTextColor(textColor);
-        lastUpdatedTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, dayOfWeekTextSize);
         forecast.setPadding(0, paddingTop, 0, paddingTop);
         forecast.setTextColor(textColor);
         forecast.setTextSize(TypedValue.COMPLEX_UNIT_SP, dayOfWeekTextSize);
@@ -166,7 +160,7 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
             }
             Weather weather = singleDay.getWeather()[0];
             String weatherIconId = "@drawable/ic_weather" + weather.getIcon();
-            Integer drawableId = getResources().getIdentifier(weatherIconId, "drawable", getContext().getPackageName());
+            int drawableId = getResources().getIdentifier(weatherIconId, "drawable", getContext().getPackageName());
             WeatherDayView weatherDayView = new WeatherDayView(getContext());
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -194,10 +188,9 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
             counter += 1;
         }
         updateLastUpdatedTimeUI();
-        String lastUpdatedDate = HOUR_MINUTE_FORMAT.format(new Date());
-        String lastUpdated = getContext().getString(R.string.last_updated, lastUpdatedDate);
-        lastUpdatedTime.setText(lastUpdated);
-        weatherStatuses.addView(lastUpdatedTime);
+        if (weatherForecastOnUpdateListener != null) {
+            weatherForecastOnUpdateListener.onUpdate(result);
+        }
         scrollingForecastUIService.activateScroll();
     }
 
@@ -284,6 +277,10 @@ public class WeatherForecastView extends WeatherServiceAwareView<FiveDayResult> 
 
         protected abstract void updateEach(int index, WeatherDayView day);
 
+    }
+
+    public void setWeatherForecastOnUpdateListener(WeatherForecastOnUpdateListener weatherForecastOnUpdateListener) {
+        this.weatherForecastOnUpdateListener = weatherForecastOnUpdateListener;
     }
 
 }

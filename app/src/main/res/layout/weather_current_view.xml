@@ -100,25 +100,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/current_weather_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="#33b5e5"
-                android:text="@string/loading"
-                android:textSize="20sp"
-                android:gravity="center"/>
-
-        </LinearLayout>
-
     </LinearLayout>
 
 </merge>

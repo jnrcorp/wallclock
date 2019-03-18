@@ -8,8 +8,8 @@
     <string name="x_day_forecast">%s Day\nForecast for\n%s</string>
     <string name="no_geo">No Geo</string>
     <string name="no_key">No Key</string>
-    <string name="last_updated">Updated\n%s</string>
-    <string name="current_weather_details">%s - Updated %s</string>
+    <string name="last_updated">Forecast Updated %s</string>
+    <string name="current_weather_details">%s Current - Updated %s</string>
 
     <!-- Strings related to Settings -->
 

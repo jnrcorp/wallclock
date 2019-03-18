@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.listeners.WeatherCurrentOnUpdateListener;
 import com.a3dx2.clock.service.model.ClockSettings;
 import com.a3dx2.clock.service.openweathermap.WeatherSearchCurrent;
 import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
@@ -31,7 +32,6 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
 
     private TextView currentWeatherTemperature;
     private ImageView currentWeatherImage;
-    private TextView currentWeatherDetails;
     private ImageView sunriseImage;
     private TextView sunriseDetails;
     private ImageView sunsetImage;
@@ -40,6 +40,8 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
     private int textColor;
     private float temperatureTextSize;
     private float iconSizeMultiplier;
+
+    private WeatherCurrentOnUpdateListener weatherCurrentOnUpdateListener;
 
     public WeatherCurrentView(Context context) {
         super(context);
@@ -82,7 +84,6 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeatherCurrentView, 0, 0);
         this.currentWeatherTemperature = findViewById(R.id.current_weather_temp);
         this.currentWeatherImage = findViewById(R.id.current_weather_image);
-        this.currentWeatherDetails = findViewById(R.id.current_weather_details);
         this.sunriseImage = findViewById(R.id.current_weather_sunrise_image);
         this.sunsetImage = findViewById(R.id.current_weather_sunset_image);
         this.sunriseDetails = findViewById(R.id.sunrise_details);
@@ -101,30 +102,30 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         LOGGER.log(Level.INFO, "currentConditions=" + result.toString());
         Weather weather = result.getWeather()[0];
         String weatherIconId = "@drawable/ic_weather" + weather.getIcon();
-        Integer drawableId = getResources().getIdentifier(weatherIconId, "drawable", getContext().getPackageName());
+        int drawableId = getResources().getIdentifier(weatherIconId, "drawable", getContext().getPackageName());
         currentWeatherImage.setImageResource(drawableId);
         sunriseImage.setColorFilter(textColor);
         sunsetImage.setColorFilter(textColor);
-        Integer sunriseDrawableId = getResources().getIdentifier("@drawable/ic_sunrise", "drawable", getContext().getPackageName());
+        int sunriseDrawableId = getResources().getIdentifier("@drawable/ic_sunrise", "drawable", getContext().getPackageName());
         sunriseImage.setImageResource(sunriseDrawableId);
-        Integer sunsetDrawableId = getResources().getIdentifier("@drawable/ic_sunset", "drawable", getContext().getPackageName());
+        int sunsetDrawableId = getResources().getIdentifier("@drawable/ic_sunset", "drawable", getContext().getPackageName());
         sunsetImage.setImageResource(sunsetDrawableId);
         WeatherUtil.resizeIcon(sunriseImage, 3);
         WeatherUtil.resizeIcon(sunsetImage, 3);
         WeatherUtil.resizeIcon(currentWeatherImage, iconSizeMultiplier);
         String temperature = WeatherUtil.formatTemperature(result.getMain().getTemp());
         currentWeatherTemperature.setText(temperature);
-        String lastUpdatedDate = HOUR_MINUTE_FORMAT.format(new Date());
-        String details = getContext().getString(R.string.current_weather_details, result.getName(), lastUpdatedDate);
         Long sunriseTime = Long.valueOf(result.getSys().getSunrise());
         Long sunsetTime = Long.valueOf(result.getSys().getSunset());
         Date sunrise = new Date(sunriseTime * 1000);
         Date sunset = new Date(sunsetTime * 1000);
         String sunriseDisplayDate = HOUR_MINUTE_FORMAT.format(sunrise);
         String sunsetDisplayDate = HOUR_MINUTE_FORMAT.format(sunset);
-        currentWeatherDetails.setText(details);
         sunriseDetails.setText(sunriseDisplayDate);
         sunsetDetails.setText(sunsetDisplayDate);
+        if (weatherCurrentOnUpdateListener != null) {
+            weatherCurrentOnUpdateListener.onUpdate(result);
+        }
     }
 
     public void updateConfiguration(ClockSettings clockSettings) {
@@ -133,7 +134,6 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
         this.temperatureTextSize = clockSettings.getFontSizeWeatherTemp();
         this.iconSizeMultiplier = clockSettings.getIconSizeMultiplier().floatValue();
         currentWeatherTemperature.setTextColor(textColor);
-        currentWeatherDetails.setTextColor(textColor);
         currentWeatherImage.setColorFilter(textColor);
         sunriseDetails.setTextColor(textColor);
         sunsetDetails.setTextColor(textColor);
@@ -152,6 +152,10 @@ public class WeatherCurrentView extends WeatherServiceAwareView<CurrentLocationR
     @Override
     public void processNoApiKey() {
         currentWeatherTemperature.setText(getContext().getString(R.string.no_key));
+    }
+
+    public void setWeatherCurrentOnUpdateListener(WeatherCurrentOnUpdateListener weatherCurrentOnUpdateListener) {
+        this.weatherCurrentOnUpdateListener = weatherCurrentOnUpdateListener;
     }
 
 }

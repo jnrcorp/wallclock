@@ -13,20 +13,26 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.a3dx2.clock.R;
+import com.a3dx2.clock.listeners.WeatherCurrentOnUpdateListener;
+import com.a3dx2.clock.listeners.WeatherForecastOnUpdateListener;
 import com.a3dx2.clock.service.BrightnessService;
 import com.a3dx2.clock.service.ClockUIService;
 import com.a3dx2.clock.service.CurrentWeatherUIService;
 import com.a3dx2.clock.service.model.BrightnessContext;
 import com.a3dx2.clock.service.model.ClockSettings;
+import com.a3dx2.clock.service.openweathermap.model.CurrentLocationResult;
+import com.a3dx2.clock.service.openweathermap.model.FiveDayResult;
 import com.a3dx2.clock.view.WeatherCurrentView;
 import com.a3dx2.clock.view.WeatherForecastView;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,6 +43,8 @@ import java.util.logging.Logger;
 public class ClockMain extends AppCompatActivity implements BrightnessAwareActivity {
 
     private static final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
+
+    private static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
 
     /**
      * Some older devices needs a small delay between UI widget updates
@@ -94,6 +102,8 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
 
     private WeatherForecastView weatherForecastView;
     private WeatherCurrentView weatherCurrentView;
+    private TextView currentWeatherDetails;
+    private TextView forecastWeatherDetails;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +131,24 @@ public class ClockMain extends AppCompatActivity implements BrightnessAwareActiv
         mContentView = findViewById(R.id.fullscreen_content);
         weatherForecastView = findViewById(R.id.weather_forecast_view);
         weatherCurrentView = findViewById(R.id.weather_current_view);
+        currentWeatherDetails = findViewById(R.id.current_weather_details);
+        forecastWeatherDetails = findViewById(R.id.forecast_weather_details);
+        weatherCurrentView.setWeatherCurrentOnUpdateListener(new WeatherCurrentOnUpdateListener() {
+            @Override
+            public void onUpdate(CurrentLocationResult result) {
+                String lastUpdatedDate = HOUR_MINUTE_FORMAT.format(new Date());
+                String details = getContext().getString(R.string.current_weather_details, result.getName(), lastUpdatedDate);
+                currentWeatherDetails.setText(details);
+            }
+        });
+        weatherForecastView.setWeatherForecastOnUpdateListener(new WeatherForecastOnUpdateListener() {
+            @Override
+            public void onUpdate(FiveDayResult result) {
+                String lastUpdatedDate = HOUR_MINUTE_FORMAT.format(new Date());
+                String lastUpdated = getContext().getString(R.string.last_updated, lastUpdatedDate);
+                forecastWeatherDetails.setText(lastUpdated);
+            }
+        });
 
         if (ActivityCompat.checkSelfPermission(mThis, Manifest.permission.WRITE_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(mThis, new String[]{Manifest.permission.WRITE_SETTINGS}, PERMMISSIONS_WRITE_SETTINGS_REQUEST_ID);
