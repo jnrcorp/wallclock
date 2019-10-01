@@ -10,7 +10,12 @@ import java.util.logging.Logger;
 
 public class WebServiceCaller<K> extends AsyncTask<Void, Void, K> {
 
-    private final Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
+    private final static Logger LOGGER = Logger.getLogger("com.a3dx2.clock");
+    private final static RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    static {
+        REST_TEMPLATE.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+    }
 
     private String url;
     private Class<K> resultClass;
@@ -25,9 +30,7 @@ public class WebServiceCaller<K> extends AsyncTask<Void, Void, K> {
     @Override
     protected K doInBackground(Void... webServiceCalls) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-            return restTemplate.getForObject(url, resultClass);
+            return REST_TEMPLATE.getForObject(url, resultClass);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return null;

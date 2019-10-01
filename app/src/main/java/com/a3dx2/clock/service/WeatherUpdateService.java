@@ -49,7 +49,7 @@ public class WeatherUpdateService {
             try {
                 getWeather(weatherUpdateContext);
             } catch (Exception ex) {
-                LOGGER.log(Level.ALL, ex.getMessage(), ex);
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             } finally {
                 int updateFrequencyMinutes = weatherUpdateContext.getUpdateFrequencyMinutes();
                 weatherUpdateHandler.postDelayed(this, updateFrequencyMinutes*60*1000);
@@ -63,13 +63,17 @@ public class WeatherUpdateService {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                assert locationManager != null;
-                Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if (location != null) {
-                    wrapper.execute(location, openWeatherApiKey);
-                } else {
-                    view.processNoLocation();
+                try {
+                    LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                    assert locationManager != null;
+                    Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    if (location != null) {
+                        wrapper.execute(location, openWeatherApiKey);
+                    } else {
+                        view.processNoLocation();
+                    }
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                 }
             } else if (openWeatherApiKey.trim().isEmpty()) {
                 view.processNoApiKey();
